@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <circle cx="128" cy="128" r="120" fill="#1a1a2e" stroke="#16213e" stroke-width="4"/>
+  
+  <!-- 外圈指南针环 -->
+  <circle cx="128" cy="128" r="100" fill="none" stroke="#0f3460" stroke-width="2" opacity="0.6"/>
+  
+  <!-- 主要方向指示线 -->
+  <!-- 北 -->
+  <line x1="128" y1="38" x2="128" y2="58" stroke="#e94560" stroke-width="4" stroke-linecap="round"/>
+  <!-- 东 -->
+  <line x1="218" y1="128" x2="198" y2="128" stroke="#e94560" stroke-width="4" stroke-linecap="round"/>
+  <!-- 南 -->
+  <line x1="128" y1="218" x2="128" y2="198" stroke="#e94560" stroke-width="4" stroke-linecap="round"/>
+  <!-- 西 -->
+  <line x1="38" y1="128" x2="58" y2="128" stroke="#e94560" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- 次要方向指示线 -->
+  <!-- 东北 -->
+  <line x1="182.5" y1="73.5" x2="168.4" y2="87.6" stroke="#f39c12" stroke-width="3" stroke-linecap="round"/>
+  <!-- 东南 -->
+  <line x1="182.5" y1="182.5" x2="168.4" y2="168.4" stroke="#f39c12" stroke-width="3" stroke-linecap="round"/>
+  <!-- 西南 -->
+  <line x1="73.5" y1="182.5" x2="87.6" y2="168.4" stroke="#f39c12" stroke-width="3" stroke-linecap="round"/>
+  <!-- 西北 -->
+  <line x1="73.5" y1="73.5" x2="87.6" y2="87.6" stroke="#f39c12" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- 中心音频波纹效果 -->
+  <circle cx="128" cy="128" r="45" fill="none" stroke="#00d4aa" stroke-width="3" opacity="0.8"/>
+  <circle cx="128" cy="128" r="35" fill="none" stroke="#00d4aa" stroke-width="2" opacity="0.6"/>
+  <circle cx="128" cy="128" r="25" fill="none" stroke="#00d4aa" stroke-width="2" opacity="0.4"/>
+  
+  <!-- 中心扬声器图标 -->
+  <g transform="translate(128, 128)">
+    <!-- 扬声器主体 -->
+    <rect x="-8" y="-12" width="16" height="24" rx="2" fill="#ffffff"/>
+    <!-- 扬声器锥形 -->
+    <polygon points="-8,-8 -20,-16 -20,16 -8,8" fill="#ffffff"/>
+    <!-- 音波线条 -->
+    <path d="M 12,-8 Q 20,-8 20,0 Q 20,8 12,8" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 16,-12 Q 28,-12 28,0 Q 28,12 16,12" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  </g>
+  
+  <!-- 活跃方向指示器（示例：前方有声音） -->
+  <circle cx="128" cy="68" r="8" fill="#e94560" opacity="0.9">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- 方向标签 -->
+  <text x="128" y="25" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="12" font-weight="bold">N</text>
+  <text x="235" y="133" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="12" font-weight="bold">E</text>
+  <text x="128" y="245" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="12" font-weight="bold">S</text>
+  <text x="20" y="133" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="12" font-weight="bold">W</text>
+</svg>
