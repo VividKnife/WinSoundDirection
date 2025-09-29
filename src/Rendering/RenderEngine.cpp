@@ -1,7 +1,7 @@
 #include "RenderEngine.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
-#include <cmath>
+#include "../Common/WindowsCompat.h"
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
@@ -193,7 +193,7 @@ void RenderEngine::SetTheme(const VisualTheme& theme)
 
 void RenderEngine::SetTransparency(float alpha)
 {
-    m_globalTransparency = std::clamp(alpha, 0.0f, 1.0f);
+    m_globalTransparency = clamp(alpha, 0.0f, 1.0f);
     UpdateBrushColors();
     Logger::Debug("Transparency set to: " + std::to_string(m_globalTransparency));
 }

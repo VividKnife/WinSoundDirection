@@ -4,6 +4,8 @@
 #include "../Common/Config.h"
 #include <windows.h>
 #include <functional>
+#include <memory>
+#include <string>
 
 // 窗口事件类型
 enum class WindowEvent

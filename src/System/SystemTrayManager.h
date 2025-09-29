@@ -6,6 +6,7 @@
 #include <shellapi.h>
 #include <string>
 #include <functional>
+#include <map>
 
 // 托盘菜单项ID
 enum class TrayMenuId

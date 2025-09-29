@@ -1,6 +1,7 @@
 #include "WindowManager.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
+#include "../Common/WindowsCompat.h"
 #include <dwmapi.h>
 
 #pragma comment(lib, "dwmapi.lib")
@@ -601,8 +602,8 @@ void WindowManager::ClampWindowToScreen()
     int windowWidth = windowRect.right - windowRect.left;
     int windowHeight = windowRect.bottom - windowRect.top;
     
-    int x = std::max(workArea.left, std::min(windowRect.left, workArea.right - windowWidth));
-    int y = std::max(workArea.top, std::min(windowRect.top, workArea.bottom - windowHeight));
+    int x = max(workArea.left, min(windowRect.left, workArea.right - windowWidth));
+    int y = max(workArea.top, min(windowRect.top, workArea.bottom - windowHeight));
     
     if (x != windowRect.left || y != windowRect.top)
     {

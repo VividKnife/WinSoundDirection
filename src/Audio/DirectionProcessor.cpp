@@ -1,7 +1,6 @@
 #include "DirectionProcessor.h"
 #include "../Common/Logger.h"
-#include <cmath>
-#include <algorithm>
+#include "../Common/WindowsCompat.h"
 #include <numeric>
 
 // 方向映射表：方向 -> (方位角, 仰角)
@@ -197,7 +196,7 @@ float DirectionProcessor::CalculateIntensity(const SpatialAudioData& data)
     // 强度归一化
     if (m_config.enableIntensityNormalization)
     {
-        intensity = std::clamp(intensity, 0.0f, 1.0f);
+        intensity = clamp(intensity, 0.0f, 1.0f);
     }
 
     return intensity;
@@ -223,7 +222,7 @@ float DirectionProcessor::CalculateConfidence(const SpatialAudioData& data)
         }
     }
 
-    return std::clamp(confidence, 0.0f, 1.0f);
+    return clamp(confidence, 0.0f, 1.0f);
 }
 
 bool DirectionProcessor::ValidateDirection(const DirectionVector& direction)
@@ -408,7 +407,7 @@ void DirectionProcessor::UpdateHistory(const DirectionVector& direction, float i
     if (m_history->currentIndex >= m_history->maxSize)
     {
         float totalVariation = 0.0f;
-        size_t count = std::min(m_history->currentIndex, m_history->maxSize);
+        size_t count = min(m_history->currentIndex, m_history->maxSize);
         
         for (size_t i = 1; i < count; i++)
         {
@@ -418,7 +417,7 @@ void DirectionProcessor::UpdateHistory(const DirectionVector& direction, float i
         }
         
         m_directionStability = 1.0f - (totalVariation / (count * 180.0f));
-        m_directionStability = std::clamp(m_directionStability, 0.0f, 1.0f);
+        m_directionStability = clamp(m_directionStability, 0.0f, 1.0f);
     }
 }
 
@@ -439,8 +438,8 @@ float DirectionProcessor::CalculateDirectionWeight(const DirectionVector& direct
     float elevationDiff = std::abs(direction.elevation - targetElevation);
 
     // 转换为权重 (角度差异越小，权重越高)
-    float azimuthWeight = std::max(0.0f, 1.0f - azimuthDiff / 180.0f);
-    float elevationWeight = std::max(0.0f, 1.0f - elevationDiff / 90.0f);
+    float azimuthWeight = max(0.0f, 1.0f - azimuthDiff / 180.0f);
+    float elevationWeight = max(0.0f, 1.0f - elevationDiff / 90.0f);
 
     return (azimuthWeight + elevationWeight) * 0.5f;
 }
@@ -455,7 +454,7 @@ float DirectionProcessor::NormalizeAngle(float angle)
 float DirectionProcessor::AngleDifference(float angle1, float angle2)
 {
     float diff = std::abs(NormalizeAngle(angle1) - NormalizeAngle(angle2));
-    return std::min(diff, 360.0f - diff);
+    return min(diff, 360.0f - diff);
 }
 
 float DirectionProcessor::VectorMagnitude(float x, float y, float z)

@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Common/Logger.h"
 #include "Common/ErrorHandler.h"
+#include "Common/WindowsCompat.h"
 
 // 组件头文件
 #include "Audio/AudioCaptureEngine.h"

@@ -1,6 +1,6 @@
 #include "ErrorHandler.h"
 #include "Logger.h"
-#include <windows.h>
+#include "WindowsCompat.h"
 
 std::function<void(ErrorType, const std::string&)> ErrorHandler::s_errorCallback = nullptr;
 bool ErrorHandler::s_initialized = false;
@@ -35,7 +35,7 @@ void ErrorHandler::HandleAudioError(AudioErrorType error, const std::string& det
     // 显示用户通知
     if (error == AudioErrorType::SpatialAudioNotSupported)
     {
-        ShowUserNotification("您的音频设备不支持空间音效。程序将使用立体声模式。", NotificationType::Warning);
+        ShowUserNotification("Your audio device does not support spatial audio. The program will use stereo mode.", NotificationType::Warning);
     }
 }
 
@@ -75,11 +75,11 @@ void ErrorHandler::ShowUserNotification(const std::string& message, Notification
     {
         case NotificationType::Warning:
             iconType = MB_ICONWARNING;
-            title += " - 警告";
+            title += " - Warning";
             break;
         case NotificationType::Error:
             iconType = MB_ICONERROR;
-            title += " - 错误";
+            title += " - Error";
             break;
         default:
             break;

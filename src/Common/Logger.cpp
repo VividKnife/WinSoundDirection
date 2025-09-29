@@ -1,8 +1,11 @@
 #include "Logger.h"
+#include "WindowsCompat.h"
 #include <iostream>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
+#include <ctime>
 
 std::unique_ptr<std::ofstream> Logger::s_logFile = nullptr;
 std::mutex Logger::s_logMutex;
@@ -95,7 +98,8 @@ std::string Logger::GetTimestamp()
         now.time_since_epoch()) % 1000;
     
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t), "%Y-%m-%d %H:%M:%S");
+    std::tm* tm_ptr = std::localtime(&time_t);
+    ss << std::put_time(tm_ptr, "%Y-%m-%d %H:%M:%S");
     ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
     
     return ss.str();

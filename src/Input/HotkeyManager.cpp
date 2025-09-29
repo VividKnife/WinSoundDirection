@@ -1,6 +1,7 @@
 #include "HotkeyManager.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
+#include "../Common/WindowsCompat.h"
 
 const wchar_t* HotkeyManager::MESSAGE_WINDOW_CLASS = L"SpatialAudioVisualizerHotkey";
 bool HotkeyManager::s_classRegistered = false;

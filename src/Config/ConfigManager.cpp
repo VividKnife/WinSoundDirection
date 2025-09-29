@@ -1,6 +1,7 @@
 #include "ConfigManager.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
+#include "../Common/WindowsCompat.h"
 #include <fstream>
 #include <filesystem>
 #include <shlobj.h>
@@ -635,8 +636,8 @@ nlohmann::json ConfigManager::SerializeHotkeyConfig(const HotkeyConfig& config) 
 HotkeyConfig ConfigManager::DeserializeHotkeyConfig(const nlohmann::json& json) const
 {
     HotkeyConfig config;
-    if (!json["toggleKey"].is_null()) config.toggleKey = json["toggleKey"].get_int();
-    if (!json["toggleModifiers"].is_null()) config.toggleModifiers = json["toggleModifiers"].get_int();
+    if (!json["toggleKey"].is_null()) config.toggleKey = static_cast<UINT>(json["toggleKey"].get<int>());
+    if (!json["toggleModifiers"].is_null()) config.toggleModifiers = static_cast<UINT>(json["toggleModifiers"].get<int>());
     if (!json["enableGlobalHotkeys"].is_null()) config.enableGlobalHotkeys = json["enableGlobalHotkeys"].get_bool();
     if (!json["showTrayIcon"].is_null()) config.showTrayIcon = json["showTrayIcon"].get_bool();
     return config;

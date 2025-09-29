@@ -1,9 +1,12 @@
 #include "AudioCaptureEngine.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
+#include "../Common/WindowsCompat.h"
 #include <comdef.h>
 #include <functiondiscoverykeys_devpkey.h>
-#include <cmath>
+#include <propvarutil.h>
+#include <thread>
+#include <mutex>
 
 AudioCaptureEngine::AudioCaptureEngine()
     : m_isCapturing(false)
@@ -139,7 +142,7 @@ SpatialAudioData AudioCaptureEngine::GetCurrentAudioData()
 
 void AudioCaptureEngine::SetSensitivity(float sensitivity)
 {
-    m_config.sensitivity = std::clamp(sensitivity, 0.0f, 1.0f);
+    m_config.sensitivity = clamp(sensitivity, 0.0f, 1.0f);
     Logger::Debug("Audio sensitivity set to: " + std::to_string(m_config.sensitivity));
 }
 
@@ -219,12 +222,15 @@ bool AudioCaptureEngine::InitializeSpatialAudio()
     }
 
     // 检查空间音频支持
-    BOOL isSupported = FALSE;
-    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, nullptr);
+    WAVEFORMATEX* supportedFormat = nullptr;
+    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, nullptr, &supportedFormat);
     if (hr != S_OK)
     {
         Logger::Warning("Spatial audio format not supported");
         return false;
+    }
+    if (supportedFormat) {
+        CoTaskMemFree(supportedFormat);
     }
 
     // 创建空间音频流
@@ -236,9 +242,16 @@ bool AudioCaptureEngine::InitializeSpatialAudio()
     activationParams.Category = AudioCategory_GameEffects;
     activationParams.EventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
-    hr = m_spatialAudioClient->ActivateSpatialAudioStream(&activationParams, 
+    PROPVARIANT activationProp;
+    PropVariantInit(&activationProp);
+    activationProp.vt = VT_BLOB;
+    activationProp.blob.cbSize = sizeof(activationParams);
+    activationProp.blob.pBlobData = reinterpret_cast<BYTE*>(&activationParams);
+    
+    hr = m_spatialAudioClient->ActivateSpatialAudioStream(&activationProp, 
                                                          __uuidof(ISpatialAudioObjectRenderStream),
                                                          (void**)&m_spatialAudioStream);
+    PropVariantClear(&activationProp);
     if (FAILED(hr))
     {
         Logger::Warning("Failed to activate spatial audio stream");
@@ -357,7 +370,11 @@ bool AudioCaptureEngine::DetectSpatialAudioSupport()
     if (SUCCEEDED(hr) && testClient)
     {
         // 测试是否支持动态对象
-        hr = testClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, nullptr);
+        WAVEFORMATEX* testFormat = nullptr;
+        hr = testClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, nullptr, &testFormat);
+        if (testFormat) {
+            CoTaskMemFree(testFormat);
+        }
         testClient->Release();
         
         bool supported = (hr == S_OK);

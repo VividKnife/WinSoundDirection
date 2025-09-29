@@ -1,6 +1,7 @@
 #include "SystemTrayManager.h"
 #include "../Common/Logger.h"
 #include "../Common/ErrorHandler.h"
+#include "../Common/WindowsCompat.h"
 #include <commctrl.h>
 
 #pragma comment(lib, "shell32.lib")
