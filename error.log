@@ -1,0 +1,271 @@
+PS C:\workspace\WinSoundDirection> .\build.bat
+Building Spatial Audio Visualizer...
+Checking resources...
+Building Debug configuration...
+
+  main.cpp
+C:\workspace\WinSoundDirection\src\main.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Application.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/main.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/main.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/main.cpp”)
+
+C:\workspace\WinSoundDirection\src\main.cpp(2,10): error C1083: 无法打开包括文件: “Logger.h”: No such file or directory [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  Logger.cpp
+C:\workspace\WinSoundDirection\src\Common\Logger.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Common\Logger.cpp(98,30): error C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  ErrorHandler.cpp
+C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(38,30): error C2001: 常量中有换行符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(39,5): error C2143: 语法错误: 缺少“)”(在“}”的前面) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(38,9): error C2660: “ErrorHandler::ShowUserNotification”: 函数不接受 1 个参数 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\workspace\WinSoundDirection\src\Common\ErrorHandler.h(60,17):
+      参见“ErrorHandler::ShowUserNotification”的声明
+      C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(38,9):
+      尝试匹配参数列表“(const char [105])”时
+
+C:\workspace\WinSoundDirection\src\Common\ErrorHandler.cpp(39,5): error C2143: 语法错误: 缺少“;”(在“}”的前面) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  AudioCaptureEngine.cpp
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/AudioCaptureEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/AudioCaptureEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/AudioCaptureEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(142,33): error C2039: "clamp": 不是 "std" 的成员 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\Program Files\Microsoft Visual Studio\18\Insiders\VC\Tools\MSVC\14.44.35207\include\fstream(20,1):
+      参见“std”的声明
+
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(142,33): error C3861: “clamp”: 找不到标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(223,32): error C2660: “ISpatialAudioClient::IsAudioObjectFormatSupported”: 函数不接受 2 个参数 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\spatialaudioclient.h(1013,43):
+      参见“ISpatialAudioClient::IsAudioObjectFormatSupported”的声明
+      C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(223,32):
+      尝试匹配参数列表“(AudioObjectType, nullptr)”时
+
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(239,32): error C2664: “HRESULT ISpatialAudioClient::ActivateSpatialAudioStream(const PROPVARIANT *,const IID &,void **)”: 无法将参数 1 从“SpatialAudioObjectRenderStreamActivationParams *”转换为“const PROPVARIANT *” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(239,59):
+      指向的类型不相关; 转换需要 reinterpret_cast、C 样式强制转换或带圆括号的函数样式强制转换
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\spatialaudioclient.h(1023,43):
+      参见“ISpatialAudioClient::ActivateSpatialAudioStream”的声明
+      C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(239,32):
+      尝试匹配参数列表“(SpatialAudioObjectRenderStreamActivationParams *, const _GUID, void **)”时
+
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(360,26): error C2660: “ISpatialAudioClient::IsAudioObjectFormatSupported”: 函数不接受 2 个参数 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\spatialaudioclient.h(1013,43):
+      参见“ISpatialAudioClient::IsAudioObjectFormatSupported”的声明
+      C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(360,26):
+      尝试匹配参数列表“(AudioObjectType, nullptr)”时
+
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(607,48): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\AudioCaptureEngine.cpp(609,48): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  DirectionProcessor.cpp
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/DirectionProcessor.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/DirectionProcessor.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Audio/DirectionProcessor.cpp”)
+
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(266,54): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(269,64): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(284,34): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(285,38): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(411,29): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(411,29): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(442,32): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(442,32): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(443,34): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(443,34): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(458,17): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Audio\DirectionProcessor.cpp(458,17): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  RenderEngine.cpp
+C:\workspace\WinSoundDirection\src\Rendering\RenderEngine.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Rendering\RenderEngine.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Rendering/RenderEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Rendering/RenderEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Rendering/RenderEngine.cpp”)
+
+C:\workspace\WinSoundDirection\src\Rendering\RenderEngine.cpp(196,33): error C2039: "clamp": 不是 "std" 的成员 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\Program Files\Microsoft Visual Studio\18\Insiders\VC\Tools\MSVC\14.44.35207\include\mutex(29,1):
+      参见“std”的声明
+
+C:\workspace\WinSoundDirection\src\Rendering\RenderEngine.cpp(196,33): error C3861: “clamp”: 找不到标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Rendering\RenderEngine.cpp(734,22): error C2065: “M_PI”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  WindowManager.cpp
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Window\WindowManager.h(130,10): error C2039: "unique_ptr": 不是 "std" 的成员 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+      C:\Program Files\Microsoft Visual Studio\18\Insiders\VC\Tools\MSVC\14.44.35207\include\string(23,1):
+      参见“std”的声明
+
+C:\workspace\WinSoundDirection\src\Window\WindowManager.h(130,20): error C2143: 语法错误: 缺少“;”(在“<”的前面) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Window\WindowManager.h(130,10): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Window\WindowManager.h(130,55): error C2238: 意外的标记位于“;”之前 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Window/WindowManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(21,5): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(292,12): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(528,26): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(530,25): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(564,9): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(565,9): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(566,9): error C2065: “m_fullscreenState”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(604,18): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(604,18): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(605,18): error C2589: “(”:“::”右边的非法标记 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Window\WindowManager.cpp(605,18): error C2059: 语法错误:“)” [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  HotkeyManager.cpp
+C:\workspace\WinSoundDirection\src\Input\HotkeyManager.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Input\HotkeyManager.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Input/HotkeyManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Input/HotkeyManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Input/HotkeyManager.cpp”)
+
+  SystemTrayManager.cpp
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.h(103,10): error C2039: "map": 不是 "std" 的成员 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+      C:\Program Files\Microsoft Visual Studio\18\Insiders\VC\Tools\MSVC\14.44.35207\include\string(23,1):
+      参见“std”的声明
+
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.h(103,13): error C2143: 语法错误: 缺少“;”(在“<”的前面) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.h(103,10): error C4430: 缺少类型说明符 - 假定为 int。注意: C++ 不支持默认 int [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.h(103,64): error C2238: 意外的标记位于“;”之前 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/System/SystemTrayManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.cpp(223,5): error C2065: “m_menuCallbacks”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.cpp(400,15): error C2065: “m_menuCallbacks”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.cpp(401,9): error C3536: “it”: 初始化之前无法使用 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\System\SystemTrayManager.cpp(401,15): error C2065: “m_menuCallbacks”: 未声明的标识符 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  ConfigManager.cpp
+C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+C:\workspace\WinSoundDirection\src\Config\ConfigManager.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Config/ConfigManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Types.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Config/ConfigManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Common\Config.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失 [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+  (编译源文件“src/Config/ConfigManager.cpp”)
+
+C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,21): error C2679: 二元“=”: 没有找到接受“const UINT”类型的右操作数的运算符(或没有可接受的转换) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(96,5):
+      可能是“nlohmann::json &nlohmann::json::operator =(nlohmann::json &&) noexcept(false)”
+          C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,21):
+          “nlohmann::json &nlohmann::json::operator =(nlohmann::json &&) noexcept(false)”: 无法将参数 2 从“const UINT”转换为“nlohmann::json &&”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+              原因如下: 无法从“const UINT”转换为“nlohmann::json”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+              “nlohmann::json::json”: 对重载函数的调用不明确
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(22,9):
+                  可能是“nlohmann::json::json(float)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(21,9):
+                  或    “nlohmann::json::json(int)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(20,9):
+                  或    “nlohmann::json::json(bool)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+                  尝试匹配参数列表“(const UINT)”时
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(96,5):
+      或    “nlohmann::json &nlohmann::json::operator =(const nlohmann::json &)”
+          C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,21):
+          “nlohmann::json &nlohmann::json::operator =(const nlohmann::json &)”: 无法将参数 2 从“const UINT”转换为“const nlohmann::json &”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+              原因如下: 无法从“const UINT”转换为“const nlohmann::json”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+              “nlohmann::json::json”: 对重载函数的调用不明确
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(22,9):
+                  可能是“nlohmann::json::json(float)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(21,9):
+                  或    “nlohmann::json::json(int)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(20,9):
+                  或    “nlohmann::json::json(bool)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,31):
+                  尝试匹配参数列表“(const UINT)”时
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(628,21):
+      尝试匹配参数列表“(nlohmann::json, const UINT)”时
+
+C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,27): error C2679: 二元“=”: 没有找到接受“const UINT”类型的右操作数的运算符(或没有可接受的转换) [C:\workspace\WinSoundDirection\SpatialAudioVisualizer.vcxproj]
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(96,5):
+      可能是“nlohmann::json &nlohmann::json::operator =(nlohmann::json &&) noexcept(false)”
+          C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,27):
+          “nlohmann::json &nlohmann::json::operator =(nlohmann::json &&) noexcept(false)”: 无法将参数 2 从“const UINT”转换为“nlohmann::json &&”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+              原因如下: 无法从“const UINT”转换为“nlohmann::json”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+              “nlohmann::json::json”: 对重载函数的调用不明确
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(22,9):
+                  可能是“nlohmann::json::json(float)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(21,9):
+                  或    “nlohmann::json::json(int)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(20,9):
+                  或    “nlohmann::json::json(bool)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+                  尝试匹配参数列表“(const UINT)”时
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(96,5):
+      或    “nlohmann::json &nlohmann::json::operator =(const nlohmann::json &)”
+          C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,27):
+          “nlohmann::json &nlohmann::json::operator =(const nlohmann::json &)”: 无法将参数 2 从“const UINT”转换为“const nlohmann::json &”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+              原因如下: 无法从“const UINT”转换为“const nlohmann::json”
+              C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+              “nlohmann::json::json”: 对重载函数的调用不明确
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(22,9):
+                  可能是“nlohmann::json::json(float)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(21,9):
+                  或    “nlohmann::json::json(int)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(20,9):
+                  或    “nlohmann::json::json(bool)”
+                  C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,37):
+                  尝试匹配参数列表“(const UINT)”时
+      C:\workspace\WinSoundDirection\src\Config\ConfigManager.cpp(629,27):
+      尝试匹配参数列表“(nlohmann::json, const UINT)”时
+
+  正在生成代码...
+Debug build failed!
+请按任意键继续. . .
