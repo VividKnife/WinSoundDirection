@@ -1,7 +1,7 @@
 #include <windows.h>
 
-// 应用程序图标
-101 ICON "app_icon.ico"
+// 应用程序图标 (temporarily disabled due to format issue)
+// 101 ICON "app_icon.ico"
 
 // 版本信息
 1 VERSIONINFO
