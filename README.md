@@ -20,15 +20,45 @@
 
 ## 构建说明
 
-### 使用Visual Studio
+### ✅ Windows (推荐)
+**使用Visual Studio:**
 1. 打开 `SpatialAudioVisualizer.sln`
 2. 选择 Release|x64 配置
 3. 构建解决方案 (Ctrl+Shift+B)
 
-### 命令行构建
+**命令行构建:**
 ```bash
 msbuild SpatialAudioVisualizer.sln /p:Configuration=Release /p:Platform=x64
 ```
+
+**使用构建脚本:**
+```bash
+build.bat
+```
+
+### ⚠️ macOS/Linux (仅语法检查)
+**注意**: 这是Windows专用应用程序，在macOS/Linux上无法正常运行，但可以进行语法检查：
+
+```bash
+# macOS
+./build_macos.sh
+
+# 或使用CMake
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+make -j$(nproc)
+```
+
+**为什么不能在Mac上运行?**
+- 使用Windows专用API (WASAPI, Direct2D, Win32)
+- 依赖Windows空间音效系统
+- 需要Windows系统托盘和窗口管理
+
+### 🔄 替代方案
+**在Mac上开发/测试:**
+1. **虚拟机**: Parallels Desktop, VMware Fusion, VirtualBox
+2. **远程开发**: GitHub Codespaces, Azure DevTest Labs
+3. **交叉编译**: 仅用于语法检查，无法运行
 
 ## 运行
 

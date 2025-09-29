@@ -3,13 +3,6 @@ build/
 bin/
 obj/
 
-# Visual Studio files
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-*.sln
-.vs/
-
 # CMake files
 CMakeCache.txt
 CMakeFiles/
