@@ -34,4 +34,5 @@ BEGIN
 END
 
 // 应用程序清单（用于高DPI支持和管理员权限）
-1 RT_MANIFEST "app.manifest"
+// Manifest is handled by the project file, not needed here
+// 1 RT_MANIFEST "app.manifest"
