@@ -4,7 +4,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    // 初始化日志系统
+    // Initialize logging system
     Logger::Initialize();
     Logger::Info("Spatial Audio Visualizer starting...");
 

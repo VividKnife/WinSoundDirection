@@ -3,7 +3,7 @@
 #include "Common/ErrorHandler.h"
 #include "Common/WindowsCompat.h"
 
-// 组件头文件
+// Component headers
 #include "Audio/AudioCaptureEngine.h"
 #include "Audio/DirectionProcessor.h"
 #include "Rendering/RenderEngine.h"
