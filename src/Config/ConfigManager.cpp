@@ -476,16 +476,16 @@ AudioConfig ConfigManager::DeserializeAudioConfig(const nlohmann::json& json) co
     AudioConfig config;
     
     if (!json["sensitivity"].is_null())
-        config.sensitivity = json["sensitivity"].get_float();
+        config.sensitivity = json["sensitivity"];
     
     if (!json["noiseThreshold"].is_null())
-        config.noiseThreshold = json["noiseThreshold"].get_float();
+        config.noiseThreshold = json["noiseThreshold"];
     
     if (!json["enableDirectionFiltering"].is_null())
-        config.enableDirectionFiltering = json["enableDirectionFiltering"].get_bool();
+        config.enableDirectionFiltering = json["enableDirectionFiltering"];
     
     if (!json["updateFrequency"].is_null())
-        config.updateFrequency = json["updateFrequency"].get_int();
+        config.updateFrequency = json["updateFrequency"];
     
     return config;
 }
@@ -592,10 +592,10 @@ nlohmann::json ConfigManager::SerializeVisualConfig(const VisualConfig& config) 
 VisualConfig ConfigManager::DeserializeVisualConfig(const nlohmann::json& json) const
 {
     VisualConfig config;
-    if (!json["transparency"].is_null()) config.transparency = json["transparency"].get_float();
-    if (!json["indicatorSize"].is_null()) config.indicatorSize = json["indicatorSize"].get_int();
-    if (!json["showCompass"].is_null()) config.showCompass = json["showCompass"].get_bool();
-    if (!json["showIntensityMeter"].is_null()) config.showIntensityMeter = json["showIntensityMeter"].get_bool();
+    if (!json["transparency"].is_null()) config.transparency = json["transparency"];
+    if (!json["indicatorSize"].is_null()) config.indicatorSize = json["indicatorSize"];
+    if (!json["showCompass"].is_null()) config.showCompass = json["showCompass"];
+    if (!json["showIntensityMeter"].is_null()) config.showIntensityMeter = json["showIntensityMeter"];
     return config;
 }
 
@@ -614,20 +614,20 @@ nlohmann::json ConfigManager::SerializeWindowConfig(const WindowConfig& config) 
 WindowConfig ConfigManager::DeserializeWindowConfig(const nlohmann::json& json) const
 {
     WindowConfig config;
-    if (!json["position_x"].is_null()) config.position.x = json["position_x"].get_int();
-    if (!json["position_y"].is_null()) config.position.y = json["position_y"].get_int();
-    if (!json["size_width"].is_null()) config.size.width = json["size_width"].get_int();
-    if (!json["size_height"].is_null()) config.size.height = json["size_height"].get_int();
-    if (!json["alwaysOnTop"].is_null()) config.alwaysOnTop = json["alwaysOnTop"].get_bool();
-    if (!json["clickThrough"].is_null()) config.clickThrough = json["clickThrough"].get_bool();
+    if (!json["position_x"].is_null()) config.position.x = json["position_x"];
+    if (!json["position_y"].is_null()) config.position.y = json["position_y"];
+    if (!json["size_width"].is_null()) config.size.width = json["size_width"];
+    if (!json["size_height"].is_null()) config.size.height = json["size_height"];
+    if (!json["alwaysOnTop"].is_null()) config.alwaysOnTop = json["alwaysOnTop"];
+    if (!json["clickThrough"].is_null()) config.clickThrough = json["clickThrough"];
     return config;
 }
 
 nlohmann::json ConfigManager::SerializeHotkeyConfig(const HotkeyConfig& config) const
 {
     nlohmann::json json;
-    json["toggleKey"] = config.toggleKey;
-    json["toggleModifiers"] = config.toggleModifiers;
+    json["toggleKey"] = static_cast<int>(config.toggleKey);
+    json["toggleModifiers"] = static_cast<int>(config.toggleModifiers);
     json["enableGlobalHotkeys"] = config.enableGlobalHotkeys;
     json["showTrayIcon"] = config.showTrayIcon;
     return json;
@@ -636,10 +636,10 @@ nlohmann::json ConfigManager::SerializeHotkeyConfig(const HotkeyConfig& config) 
 HotkeyConfig ConfigManager::DeserializeHotkeyConfig(const nlohmann::json& json) const
 {
     HotkeyConfig config;
-    if (!json["toggleKey"].is_null()) config.toggleKey = static_cast<UINT>(json["toggleKey"].get<int>());
-    if (!json["toggleModifiers"].is_null()) config.toggleModifiers = static_cast<UINT>(json["toggleModifiers"].get<int>());
-    if (!json["enableGlobalHotkeys"].is_null()) config.enableGlobalHotkeys = json["enableGlobalHotkeys"].get_bool();
-    if (!json["showTrayIcon"].is_null()) config.showTrayIcon = json["showTrayIcon"].get_bool();
+    if (!json["toggleKey"].is_null()) config.toggleKey = static_cast<UINT>(json["toggleKey"]);
+    if (!json["toggleModifiers"].is_null()) config.toggleModifiers = static_cast<UINT>(json["toggleModifiers"]);
+    if (!json["enableGlobalHotkeys"].is_null()) config.enableGlobalHotkeys = json["enableGlobalHotkeys"];
+    if (!json["showTrayIcon"].is_null()) config.showTrayIcon = json["showTrayIcon"];
     return config;
 }
 
@@ -656,10 +656,10 @@ nlohmann::json ConfigManager::SerializePerformanceConfig(const PerformanceConfig
 PerformanceConfig ConfigManager::DeserializePerformanceConfig(const nlohmann::json& json) const
 {
     PerformanceConfig config;
-    if (!json["maxCpuUsage"].is_null()) config.maxCpuUsage = json["maxCpuUsage"].get_int();
-    if (!json["maxMemoryUsage"].is_null()) config.maxMemoryUsage = json["maxMemoryUsage"].get_int();
-    if (!json["enablePerformanceMonitoring"].is_null()) config.enablePerformanceMonitoring = json["enablePerformanceMonitoring"].get_bool();
-    if (!json["adaptiveQuality"].is_null()) config.adaptiveQuality = json["adaptiveQuality"].get_bool();
+    if (!json["maxCpuUsage"].is_null()) config.maxCpuUsage = json["maxCpuUsage"];
+    if (!json["maxMemoryUsage"].is_null()) config.maxMemoryUsage = json["maxMemoryUsage"];
+    if (!json["enablePerformanceMonitoring"].is_null()) config.enablePerformanceMonitoring = json["enablePerformanceMonitoring"];
+    if (!json["adaptiveQuality"].is_null()) config.adaptiveQuality = json["adaptiveQuality"];
     return config;
 }
 

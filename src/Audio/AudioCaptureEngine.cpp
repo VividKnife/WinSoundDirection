@@ -222,8 +222,7 @@ bool AudioCaptureEngine::InitializeSpatialAudio()
     }
 
     // 检查空间音频支持
-    WAVEFORMATEX* supportedFormat = nullptr;
-    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, &supportedFormat);
+    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic);
     if (hr != S_OK)
     {
         Logger::Warning("Spatial audio format not supported");
@@ -370,11 +369,7 @@ bool AudioCaptureEngine::DetectSpatialAudioSupport()
     if (SUCCEEDED(hr) && testClient)
     {
         // 测试是否支持动态对象
-        WAVEFORMATEX* testFormat = nullptr;
-        hr = testClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic, &testFormat);
-        if (testFormat) {
-            CoTaskMemFree(testFormat);
-        }
+        hr = testClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic);
         testClient->Release();
         
         bool supported = (hr == S_OK);
