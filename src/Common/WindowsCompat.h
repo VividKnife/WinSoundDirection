@@ -27,4 +27,14 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Provide clamp function for older C++ standards
+#if __cplusplus < 201703L
+template<typename T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+    return (v < lo) ? lo : (hi < v) ? hi : v;
+}
+#else
+using std::clamp;
+#endif
+
 // At the end of files using this header, add: #pragma warning(pop)
