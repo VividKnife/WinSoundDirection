@@ -222,14 +222,20 @@ bool AudioCaptureEngine::InitializeSpatialAudio()
     }
 
     // 检查空间音频支持
-    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic);
+    WAVEFORMATEX format = {};
+    format.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
+    format.nChannels = 2;
+    format.nSamplesPerSec = 48000;
+    format.wBitsPerSample = 32;
+    format.nBlockAlign = (format.nChannels * format.wBitsPerSample) / 8;
+    format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+    format.cbSize = 0;
+    
+    hr = m_spatialAudioClient->IsAudioObjectFormatSupported(&format);
     if (hr != S_OK)
     {
         Logger::Warning("Spatial audio format not supported");
         return false;
-    }
-    if (supportedFormat) {
-        CoTaskMemFree(supportedFormat);
     }
 
     // 创建空间音频流
@@ -369,7 +375,16 @@ bool AudioCaptureEngine::DetectSpatialAudioSupport()
     if (SUCCEEDED(hr) && testClient)
     {
         // 测试是否支持动态对象
-        hr = testClient->IsAudioObjectFormatSupported(AudioObjectType_Dynamic);
+        WAVEFORMATEX testFormat = {};
+        testFormat.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
+        testFormat.nChannels = 2;
+        testFormat.nSamplesPerSec = 48000;
+        testFormat.wBitsPerSample = 32;
+        testFormat.nBlockAlign = (testFormat.nChannels * testFormat.wBitsPerSample) / 8;
+        testFormat.nAvgBytesPerSec = testFormat.nSamplesPerSec * testFormat.nBlockAlign;
+        testFormat.cbSize = 0;
+        
+        hr = testClient->IsAudioObjectFormatSupported(&testFormat);
         testClient->Release();
         
         bool supported = (hr == S_OK);
