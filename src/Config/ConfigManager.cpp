@@ -4,7 +4,11 @@
 #include "../Common/WindowsCompat.h"
 #include <fstream>
 #include <filesystem>
+#include <cstdlib>
+
+#ifndef MOCK_WINDOWS_APIS
 #include <shlobj.h>
+#endif
 
 // 简化的JSON实现（避免外部依赖）
 #include <map>
@@ -120,8 +124,9 @@ bool ConfigManager::Initialize()
     Logger::Info("Initializing ConfigManager...");
 
     // 确定配置目录
-    m_configDirectory = GetAppDataPath() + "\\" + CONFIG_DIRECTORY_NAME;
-    m_configFilePath = m_configDirectory + "\\" + CONFIG_FILE_NAME;
+    std::filesystem::path basePath = std::filesystem::path(GetAppDataPath());
+    m_configDirectory = (basePath / CONFIG_DIRECTORY_NAME).string();
+    m_configFilePath = (std::filesystem::path(m_configDirectory) / CONFIG_FILE_NAME).string();
 
     // 确保配置目录存在
     if (!EnsureConfigDirectory())
@@ -531,21 +536,37 @@ bool ConfigManager::SaveJsonToFile(const std::string& filePath, const nlohmann::
 
 std::string ConfigManager::GetAppDataPath() const
 {
+#ifndef MOCK_WINDOWS_APIS
     wchar_t* path = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path)))
     {
         std::wstring wpath(path);
         CoTaskMemFree(path);
-        
+
         // 转换为多字节字符串
         int size = WideCharToMultiByte(CP_UTF8, 0, wpath.c_str(), -1, nullptr, 0, nullptr, nullptr);
         std::string result(size - 1, 0);
         WideCharToMultiByte(CP_UTF8, 0, wpath.c_str(), -1, &result[0], size, nullptr, nullptr);
-        
+
         return result;
     }
-    
+
     return "."; // 回退到当前目录
+#else
+    const char* xdgConfig = std::getenv("XDG_CONFIG_HOME");
+    if (xdgConfig != nullptr && *xdgConfig != '\0')
+    {
+        return std::string(xdgConfig);
+    }
+
+    const char* home = std::getenv("HOME");
+    if (home != nullptr && *home != '\0')
+    {
+        return (std::filesystem::path(home) / ".config").string();
+    }
+
+    return ".";
+#endif
 }
 
 bool ConfigManager::ValidateAudioConfig(const AudioConfig& config) const
