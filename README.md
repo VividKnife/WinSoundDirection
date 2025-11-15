@@ -37,7 +37,7 @@ build.bat
 ```
 
 ### ⚠️ macOS/Linux (仅语法检查)
-**注意**: 这是Windows专用应用程序，在macOS/Linux上无法正常运行，但可以进行语法检查：
+**注意**: 这是Windows专用应用程序，在macOS/Linux上无法正常运行，但可以进行语法检查。CMake会自动启用 `MOCK_WINDOWS_APIS` 头文件存根，以便在没有原生 Win32 SDK 的情况下完成编译，期间可能会看到一些关于未使用参数的警告，可安全忽略。
 
 ```bash
 # macOS

@@ -1,9 +1,11 @@
 #pragma once
 
-// Suppress specific warnings first
+// Suppress specific warnings for MSVC only
+#ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable: 4996) // 'localtime': This function or variable may be unsafe
-#pragma warning(disable: 4819) // Unicode/encoding warnings
+#pragma warning(disable : 4996) // 'localtime': This function or variable may be unsafe
+#pragma warning(disable : 4819) // Unicode/encoding warnings
+#endif
 
 // Suppress deprecation warnings for Windows functions
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -37,4 +39,6 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 using std::clamp;
 #endif
 
-// At the end of files using this header, add: #pragma warning(pop)
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

@@ -5,11 +5,14 @@
 
 #ifdef MOCK_WINDOWS_APIS
 
+#include <cstddef>
+
 // Basic Windows types
 typedef void* HANDLE;
 typedef void* HWND;
 typedef void* HINSTANCE;
 typedef void* HICON;
+typedef void* HCURSOR;
 typedef void* HMENU;
 typedef void* HDC;
 typedef void* HBITMAP;
@@ -21,6 +24,12 @@ typedef unsigned short WORD;
 typedef unsigned char BYTE;
 typedef long LONG;
 typedef int BOOL;
+typedef unsigned long WPARAM;
+typedef long LPARAM;
+typedef long LRESULT;
+typedef unsigned long UINT_PTR;
+typedef unsigned long DWORD_PTR;
+typedef unsigned int UINT32;
 typedef char* LPSTR;
 typedef const char* LPCSTR;
 typedef wchar_t* LPWSTR;
@@ -29,14 +38,28 @@ typedef void* LPVOID;
 typedef long long LONGLONG;
 typedef unsigned long long ULONGLONG;
 
+typedef LRESULT (*WNDPROC)(HWND, UINT, WPARAM, LPARAM);
+
 typedef DWORD* LPDWORD;
 typedef UINT* LPUINT;
 typedef LONG* LPLONG;
 
 // Windows constants
+#ifndef CALLBACK
+#define CALLBACK
+#endif
+#ifndef WINAPI
+#define WINAPI
+#endif
+#ifndef TRUE
 #define TRUE 1
+#endif
+#ifndef FALSE
 #define FALSE 0
+#endif
+#ifndef NULL
 #define NULL 0
+#endif
 
 #define MAX_PATH 260
 
@@ -70,7 +93,10 @@ typedef LONG* LPLONG;
 #define WM_HOTKEY 0x0312
 #define WM_TIMER 0x0113
 #define WM_COMMAND 0x0111
+#define WM_APP 0x8000
 #define WM_NCCREATE 0x0081
+
+#define PM_REMOVE 0x0001
 
 // Window styles
 #define WS_POPUP 0x80000000L
@@ -96,6 +122,12 @@ typedef LONG* LPLONG;
 #define S_OK 0
 #define E_FAIL 0x80004005L
 
+// MessageBox flags
+#define MB_OK 0x00000000L
+#define MB_ICONINFORMATION 0x00000040L
+#define MB_ICONWARNING 0x00000030L
+#define MB_ICONERROR 0x00000010L
+
 // Structures
 typedef struct tagPOINT {
     LONG x;
@@ -109,6 +141,16 @@ typedef struct tagRECT {
     LONG bottom;
 } RECT;
 
+typedef struct tagWAVEFORMATEX {
+    WORD wFormatTag;
+    WORD nChannels;
+    DWORD nSamplesPerSec;
+    DWORD nAvgBytesPerSec;
+    WORD nBlockAlign;
+    WORD wBitsPerSample;
+    WORD cbSize;
+} WAVEFORMATEX;
+
 typedef struct tagMSG {
     HWND hwnd;
     UINT message;
@@ -118,23 +160,65 @@ typedef struct tagMSG {
     POINT pt;
 } MSG;
 
+typedef struct tagWNDCLASSEXW {
+    UINT cbSize;
+    UINT style;
+    WNDPROC lpfnWndProc;
+    int cbClsExtra;
+    int cbWndExtra;
+    HINSTANCE hInstance;
+    HICON hIcon;
+    HCURSOR hCursor;
+    HBRUSH hbrBackground;
+    LPCWSTR lpszMenuName;
+    LPCWSTR lpszClassName;
+    HICON hIconSm;
+} WNDCLASSEXW;
+
+typedef struct tagNOTIFYICONDATAW {
+    DWORD cbSize;
+    HWND hWnd;
+    UINT uID;
+    UINT uFlags;
+    UINT uCallbackMessage;
+    HICON hIcon;
+    wchar_t szTip[128];
+} NOTIFYICONDATA;
+
 // Mock function declarations (will not work)
-inline BOOL PeekMessage(MSG* lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg) { return FALSE; }
-inline BOOL TranslateMessage(const MSG* lpMsg) { return FALSE; }
-inline LONG DispatchMessage(const MSG* lpMsg) { return 0; }
-inline void PostQuitMessage(int nExitCode) {}
+inline BOOL PeekMessage(MSG*, HWND, UINT, UINT, UINT) { return FALSE; }
+inline BOOL TranslateMessage(const MSG*) { return FALSE; }
+inline LONG DispatchMessage(const MSG*) { return 0; }
+inline void PostQuitMessage(int) {}
 inline DWORD GetTickCount() { return 0; }
-inline void Sleep(DWORD dwMilliseconds) {}
-inline BOOL SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags) { return FALSE; }
-inline BOOL ShowWindow(HWND hWnd, int nCmdShow) { return FALSE; }
+inline void Sleep(DWORD) {}
+inline BOOL SetWindowPos(HWND, HWND, int, int, int, int, UINT) { return FALSE; }
+inline BOOL ShowWindow(HWND, int) { return FALSE; }
 inline HWND GetForegroundWindow() { return NULL; }
-inline BOOL GetWindowRect(HWND hWnd, RECT* lpRect) { return FALSE; }
-inline BOOL GetClientRect(HWND hWnd, RECT* lpRect) { return FALSE; }
-inline HINSTANCE GetModuleHandle(LPCSTR lpModuleName) { return NULL; }
+inline BOOL GetWindowRect(HWND, RECT*) { return FALSE; }
+inline BOOL GetClientRect(HWND, RECT*) { return FALSE; }
+inline BOOL SetForegroundWindow(HWND) { return TRUE; }
+inline HINSTANCE GetModuleHandle(LPCSTR) { return NULL; }
 inline DWORD GetLastError() { return 0; }
+inline int MessageBoxA(HWND, LPCSTR, LPCSTR, UINT) { return 0; }
+inline BOOL RegisterClassExW(const WNDCLASSEXW*) { return TRUE; }
+inline BOOL UnregisterClassW(LPCWSTR, HINSTANCE) { return TRUE; }
+inline HWND CreateWindowExW(DWORD, LPCWSTR, LPCWSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID) { return NULL; }
+inline BOOL DestroyWindow(HWND) { return TRUE; }
+inline BOOL UpdateWindow(HWND) { return TRUE; }
+inline BOOL SetTimer(HWND, UINT_PTR, UINT, void*) { return TRUE; }
+inline BOOL KillTimer(HWND, UINT_PTR) { return TRUE; }
+inline BOOL RegisterHotKey(HWND, int, UINT, UINT) { return TRUE; }
+inline BOOL UnregisterHotKey(HWND, int) { return TRUE; }
+inline BOOL Shell_NotifyIcon(DWORD, NOTIFYICONDATA*) { return TRUE; }
+inline HMENU CreatePopupMenu() { return nullptr; }
+inline BOOL DestroyMenu(HMENU) { return TRUE; }
+inline BOOL AppendMenuW(HMENU, UINT, UINT_PTR, LPCWSTR) { return TRUE; }
+inline BOOL InsertMenuW(HMENU, UINT, UINT, UINT_PTR, LPCWSTR) { return TRUE; }
+inline UINT TrackPopupMenu(HMENU, UINT, int, int, int, HWND, const RECT*) { return 0; }
 
 // COM
-inline long CoInitializeEx(void* pvReserved, DWORD dwCoInit) { return S_OK; }
+inline long CoInitializeEx(void*, DWORD) { return S_OK; }
 inline void CoUninitialize() {}
 
 #endif // MOCK_WINDOWS_APIS
