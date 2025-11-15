@@ -1,9 +1,23 @@
 #include "Application.h"
 #include "Common/Logger.h"
-#include <windows.h>
+#include "Common/WindowsCompat.h"
 
+#ifndef MOCK_WINDOWS_APIS
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+int main(int argc, char** argv)
+#endif
 {
+#ifdef MOCK_WINDOWS_APIS
+    (void)argc;
+    (void)argv;
+    HINSTANCE hInstance = nullptr;
+    int nCmdShow = 0;
+#else
+    (void)hPrevInstance;
+    (void)lpCmdLine;
+#endif
+    (void)nCmdShow;
     // Initialize logging system
     Logger::Initialize();
     Logger::Info("Spatial Audio Visualizer starting...");
@@ -12,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
         // 创建应用程序实例
         Application app;
-        
+
         // 初始化应用程序
         if (!app.Initialize(hInstance))
         {
