@@ -79,7 +79,7 @@ struct ID2D1Factory {
 struct ID2D1HwndRenderTarget {
     virtual void BeginDraw() = 0;
     virtual long EndDraw() = 0;
-    virtual void Clear(const D2D1_COLOR_F* clearColor) = 0;
+    virtual void Clear(const D2D1_COLOR_F& clearColor) = 0;
     virtual D2D1_SIZE_F GetSize() = 0;
     virtual long Resize(const D2D1_SIZE_U* pixelSize) = 0;
     virtual long CreateSolidColorBrush(const D2D1_COLOR_F* color, ID2D1SolidColorBrush** solidColorBrush) = 0;
@@ -96,13 +96,71 @@ struct ID2D1SolidColorBrush {
     virtual void Release() = 0;
 };
 
-// Helper functions
+// Helper functions and lightweight helpers mirroring the real Direct2D helper API.
 namespace D2D1 {
-    inline D2D1_COLOR_F ColorF(float r, float g, float b, float a = 1.0f) {
-        D2D1_COLOR_F color = {r, g, b, a};
-        return color;
-    }
-    
+    struct ColorF {
+        float r;
+        float g;
+        float b;
+        float a;
+
+        enum Enum {
+            Black,
+            White,
+            Red,
+            Green,
+            Blue,
+            Yellow,
+            Orange,
+            Cyan,
+            Magenta,
+            Gray,
+            LightGray
+        };
+
+        ColorF()
+            : r(0.0f)
+            , g(0.0f)
+            , b(0.0f)
+            , a(1.0f) {}
+
+        ColorF(float red, float green, float blue, float alpha = 1.0f)
+            : r(red)
+            , g(green)
+            , b(blue)
+            , a(alpha) {}
+
+        ColorF(Enum color, float alpha = 1.0f)
+            : r(0.0f)
+            , g(0.0f)
+            , b(0.0f)
+            , a(alpha) {
+            switch (color) {
+                case Black:     r = 0.0f; g = 0.0f; b = 0.0f; break;
+                case White:     r = 1.0f; g = 1.0f; b = 1.0f; break;
+                case Red:       r = 1.0f; g = 0.0f; b = 0.0f; break;
+                case Green:     r = 0.0f; g = 1.0f; b = 0.0f; break;
+                case Blue:      r = 0.0f; g = 0.0f; b = 1.0f; break;
+                case Yellow:    r = 1.0f; g = 1.0f; b = 0.0f; break;
+                case Orange:    r = 1.0f; g = 0.55f; b = 0.0f; break;
+                case Cyan:      r = 0.0f; g = 1.0f; b = 1.0f; break;
+                case Magenta:   r = 1.0f; g = 0.0f; b = 1.0f; break;
+                case Gray:      r = 0.5f; g = 0.5f; b = 0.5f; break;
+                case LightGray: r = 0.8f; g = 0.8f; b = 0.8f; break;
+            }
+        }
+
+        ColorF(const D2D1_COLOR_F& color)
+            : r(color.r)
+            , g(color.g)
+            , b(color.b)
+            , a(color.a) {}
+
+        operator D2D1_COLOR_F() const {
+            return D2D1_COLOR_F{r, g, b, a};
+        }
+    };
+
     inline D2D1_POINT_2F Point2F(float x, float y) {
         D2D1_POINT_2F point = {x, y};
         return point;
@@ -140,7 +198,7 @@ namespace D2D1 {
 }
 
 // Mock factory creation function
-inline long D2D1CreateFactory(D2D1_FACTORY_TYPE factoryType, ID2D1Factory** factory) {
+inline long D2D1CreateFactory(D2D1_FACTORY_TYPE, ID2D1Factory** factory) {
     *factory = nullptr;
     return E_FAIL;
 }
