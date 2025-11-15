@@ -4,96 +4,434 @@
 #include "../Common/WindowsCompat.h"
 #include <fstream>
 #include <filesystem>
+#include <cstdlib>
+
+#ifndef MOCK_WINDOWS_APIS
 #include <shlobj.h>
+#endif
 
 // 简化的JSON实现（避免外部依赖）
 #include <map>
 #include <vector>
 #include <variant>
+#include <sstream>
+#include <cctype>
+#include <algorithm>
+#include <stdexcept>
 
 // 简单的JSON类实现
 namespace nlohmann {
     class json {
     public:
-        using value_type = std::variant<std::nullptr_t, bool, int, float, std::string, std::map<std::string, json>, std::vector<json>>;
-        
+        using object_type = std::map<std::string, json>;
+        using array_type = std::vector<json>;
+        using value_type = std::variant<std::nullptr_t, bool, int, float, std::string, object_type, array_type>;
+
         json() : value(nullptr) {}
         json(bool b) : value(b) {}
         json(int i) : value(i) {}
         json(float f) : value(f) {}
         json(const std::string& s) : value(s) {}
         json(const char* s) : value(std::string(s)) {}
-        
-        json& operator[](const std::string& key) {
-            if (!std::holds_alternative<std::map<std::string, json>>(value)) {
-                value = std::map<std::string, json>();
-            }
-            return std::get<std::map<std::string, json>>(value)[key];
+
+        static json object()
+        {
+            json j;
+            j.value = object_type();
+            return j;
         }
-        
-        const json& operator[](const std::string& key) const {
+
+        static json array()
+        {
+            json j;
+            j.value = array_type();
+            return j;
+        }
+
+        json& operator[](const std::string& key)
+        {
+            if (!std::holds_alternative<object_type>(value))
+            {
+                value = object_type();
+            }
+            return std::get<object_type>(value)[key];
+        }
+
+        const json& operator[](const std::string& key) const
+        {
             static json null_json;
-            if (std::holds_alternative<std::map<std::string, json>>(value)) {
-                const auto& map = std::get<std::map<std::string, json>>(value);
+            if (std::holds_alternative<object_type>(value))
+            {
+                const auto& map = std::get<object_type>(value);
                 auto it = map.find(key);
-                return (it != map.end()) ? it->second : null_json;
+                if (it != map.end())
+                    return it->second;
             }
             return null_json;
         }
-        
+
+        void push_back(const json& element)
+        {
+            if (!std::holds_alternative<array_type>(value))
+            {
+                value = array_type();
+            }
+            std::get<array_type>(value).push_back(element);
+        }
+
         bool is_null() const { return std::holds_alternative<std::nullptr_t>(value); }
         bool is_bool() const { return std::holds_alternative<bool>(value); }
         bool is_number() const { return std::holds_alternative<int>(value) || std::holds_alternative<float>(value); }
         bool is_string() const { return std::holds_alternative<std::string>(value); }
-        bool is_object() const { return std::holds_alternative<std::map<std::string, json>>(value); }
-        
+        bool is_object() const { return std::holds_alternative<object_type>(value); }
+        bool is_array() const { return std::holds_alternative<array_type>(value); }
+
         bool get_bool() const { return std::holds_alternative<bool>(value) ? std::get<bool>(value) : false; }
-        int get_int() const { 
-            if (std::holds_alternative<int>(value)) return std::get<int>(value);
-            if (std::holds_alternative<float>(value)) return static_cast<int>(std::get<float>(value));
+        int get_int() const
+        {
+            if (std::holds_alternative<int>(value))
+                return std::get<int>(value);
+            if (std::holds_alternative<float>(value))
+                return static_cast<int>(std::get<float>(value));
             return 0;
         }
-        float get_float() const {
-            if (std::holds_alternative<float>(value)) return std::get<float>(value);
-            if (std::holds_alternative<int>(value)) return static_cast<float>(std::get<int>(value));
+        float get_float() const
+        {
+            if (std::holds_alternative<float>(value))
+                return std::get<float>(value);
+            if (std::holds_alternative<int>(value))
+                return static_cast<float>(std::get<int>(value));
             return 0.0f;
         }
-        std::string get_string() const { return std::holds_alternative<std::string>(value) ? std::get<std::string>(value) : ""; }
-        
-        std::string dump(int indent = -1) const {
-            // 简化的JSON序列化
-            if (std::holds_alternative<std::nullptr_t>(value)) return "null";
-            if (std::holds_alternative<bool>(value)) return std::get<bool>(value) ? "true" : "false";
-            if (std::holds_alternative<int>(value)) return std::to_string(std::get<int>(value));
-            if (std::holds_alternative<float>(value)) return std::to_string(std::get<float>(value));
-            if (std::holds_alternative<std::string>(value)) return "\"" + std::get<std::string>(value) + "\"";
-            
-            if (std::holds_alternative<std::map<std::string, json>>(value)) {
-                std::string result = "{";
-                const auto& map = std::get<std::map<std::string, json>>(value);
-                bool first = true;
-                for (const auto& pair : map) {
-                    if (!first) result += ",";
-                    result += "\"" + pair.first + "\":" + pair.second.dump(indent);
-                    first = false;
-                }
-                result += "}";
-                return result;
-            }
-            
-            return "null";
+        std::string get_string() const
+        {
+            return std::holds_alternative<std::string>(value) ? std::get<std::string>(value) : "";
         }
-        
-        static json parse(const std::string& str) {
-            // 简化的JSON解析（仅支持基本功能）
-            json result;
-            // 这里应该实现完整的JSON解析，但为了简化，我们只返回空对象
-            result.value = std::map<std::string, json>();
+
+        const array_type& get_array() const
+        {
+            static const array_type emptyArray;
+            if (std::holds_alternative<array_type>(value))
+                return std::get<array_type>(value);
+            return emptyArray;
+        }
+
+        array_type& get_array()
+        {
+            if (!std::holds_alternative<array_type>(value))
+                value = array_type();
+            return std::get<array_type>(value);
+        }
+
+        std::string dump(int indent = -1) const
+        {
+            std::ostringstream oss;
+            DumpInternal(oss, indent, 0);
+            return oss.str();
+        }
+
+        static json parse(const std::string& str)
+        {
+            size_t pos = 0;
+            json result = ParseValue(str, pos);
+            SkipWhitespace(str, pos);
+            if (pos != str.size())
+            {
+                throw std::runtime_error("Unexpected characters after JSON value");
+            }
             return result;
         }
-        
+
     private:
         value_type value;
+
+        static void SkipWhitespace(const std::string& str, size_t& pos)
+        {
+            while (pos < str.size() && std::isspace(static_cast<unsigned char>(str[pos])))
+            {
+                ++pos;
+            }
+        }
+
+        static json ParseValue(const std::string& str, size_t& pos)
+        {
+            SkipWhitespace(str, pos);
+            if (pos >= str.size())
+            {
+                throw std::runtime_error("Unexpected end of JSON input");
+            }
+
+            char ch = str[pos];
+            if (ch == '{')
+                return ParseObject(str, pos);
+            if (ch == '[')
+                return ParseArray(str, pos);
+            if (ch == '"')
+                return json(ParseString(str, pos));
+            if (ch == 't' || ch == 'f')
+                return json(ParseBool(str, pos));
+            if (ch == 'n')
+                return ParseNull(str, pos);
+            if (ch == '-' || std::isdigit(static_cast<unsigned char>(ch)))
+                return ParseNumber(str, pos);
+
+            throw std::runtime_error("Invalid character in JSON input");
+        }
+
+        static json ParseObject(const std::string& str, size_t& pos)
+        {
+            json obj = json::object();
+            ++pos; // skip '{'
+            SkipWhitespace(str, pos);
+            if (pos < str.size() && str[pos] == '}')
+            {
+                ++pos;
+                return obj;
+            }
+
+            while (pos < str.size())
+            {
+                SkipWhitespace(str, pos);
+                std::string key = ParseString(str, pos);
+                SkipWhitespace(str, pos);
+                if (pos >= str.size() || str[pos] != ':')
+                    throw std::runtime_error("Expected ':' in JSON object");
+                ++pos; // skip ':'
+                json value = ParseValue(str, pos);
+                obj[key] = value;
+                SkipWhitespace(str, pos);
+                if (pos < str.size() && str[pos] == ',')
+                {
+                    ++pos;
+                    continue;
+                }
+                if (pos < str.size() && str[pos] == '}')
+                {
+                    ++pos;
+                    break;
+                }
+                throw std::runtime_error("Expected ',' or '}' in JSON object");
+            }
+
+            return obj;
+        }
+
+        static json ParseArray(const std::string& str, size_t& pos)
+        {
+            json arr = json::array();
+            ++pos; // skip '['
+            SkipWhitespace(str, pos);
+            if (pos < str.size() && str[pos] == ']')
+            {
+                ++pos;
+                return arr;
+            }
+
+            while (pos < str.size())
+            {
+                json value = ParseValue(str, pos);
+                arr.push_back(value);
+                SkipWhitespace(str, pos);
+                if (pos < str.size() && str[pos] == ',')
+                {
+                    ++pos;
+                    continue;
+                }
+                if (pos < str.size() && str[pos] == ']')
+                {
+                    ++pos;
+                    break;
+                }
+                throw std::runtime_error("Expected ',' or ']' in JSON array");
+            }
+
+            return arr;
+        }
+
+        static std::string ParseString(const std::string& str, size_t& pos)
+        {
+            if (str[pos] != '"')
+                throw std::runtime_error("Expected '"' to begin JSON string");
+            ++pos; // skip opening quote
+            std::ostringstream result;
+            bool closed = false;
+
+            while (pos < str.size())
+            {
+                char ch = str[pos++];
+                if (ch == '\\')
+                {
+                    if (pos >= str.size())
+                        throw std::runtime_error("Invalid escape sequence in JSON string");
+                    char esc = str[pos++];
+                    switch (esc)
+                    {
+                        case '"': result << '"'; break;
+                        case '\\': result << '\\'; break;
+                        case '/': result << '/'; break;
+                        case 'b': result << '\b'; break;
+                        case 'f': result << '\f'; break;
+                        case 'n': result << '\n'; break;
+                        case 'r': result << '\r'; break;
+                        case 't': result << '\t'; break;
+                        default:
+                            throw std::runtime_error("Unsupported escape sequence in JSON string");
+                    }
+                }
+                else if (ch == '"')
+                {
+                    closed = true;
+                    break;
+                }
+                else
+                {
+                    result << ch;
+                }
+            }
+
+            if (!closed)
+                throw std::runtime_error("Unterminated JSON string literal");
+
+            return result.str();
+        }
+
+        static json ParseNumber(const std::string& str, size_t& pos)
+        {
+            size_t start = pos;
+            if (str[pos] == '-')
+                ++pos;
+            while (pos < str.size() && std::isdigit(static_cast<unsigned char>(str[pos])))
+                ++pos;
+            bool isFloat = false;
+            if (pos < str.size() && str[pos] == '.')
+            {
+                isFloat = true;
+                ++pos;
+                while (pos < str.size() && std::isdigit(static_cast<unsigned char>(str[pos])))
+                    ++pos;
+            }
+            if (pos < str.size() && (str[pos] == 'e' || str[pos] == 'E'))
+            {
+                isFloat = true;
+                ++pos;
+                if (pos < str.size() && (str[pos] == '+' || str[pos] == '-'))
+                    ++pos;
+                while (pos < str.size() && std::isdigit(static_cast<unsigned char>(str[pos])))
+                    ++pos;
+            }
+            std::string numberStr = str.substr(start, pos - start);
+            if (isFloat)
+            {
+                return json(std::stof(numberStr));
+            }
+            return json(std::stoi(numberStr));
+        }
+
+        static bool ParseBool(const std::string& str, size_t& pos)
+        {
+            if (str.compare(pos, 4, "true") == 0)
+            {
+                pos += 4;
+                return true;
+            }
+            if (str.compare(pos, 5, "false") == 0)
+            {
+                pos += 5;
+                return false;
+            }
+            throw std::runtime_error("Invalid boolean literal in JSON");
+        }
+
+        static json ParseNull(const std::string& str, size_t& pos)
+        {
+            if (str.compare(pos, 4, "null") != 0)
+                throw std::runtime_error("Invalid null literal in JSON");
+            pos += 4;
+            return json();
+        }
+
+        void DumpInternal(std::ostringstream& oss, int indent, int depth) const
+        {
+            auto writeIndent = [&](int level) {
+                if (indent >= 0)
+                {
+                    oss << std::string(level * indent, ' ');
+                }
+            };
+
+            if (std::holds_alternative<std::nullptr_t>(value))
+            {
+                oss << "null";
+            }
+            else if (std::holds_alternative<bool>(value))
+            {
+                oss << (std::get<bool>(value) ? "true" : "false");
+            }
+            else if (std::holds_alternative<int>(value))
+            {
+                oss << std::get<int>(value);
+            }
+            else if (std::holds_alternative<float>(value))
+            {
+                oss << std::get<float>(value);
+            }
+            else if (std::holds_alternative<std::string>(value))
+            {
+                oss << '"' << std::get<std::string>(value) << '"';
+            }
+            else if (std::holds_alternative<object_type>(value))
+            {
+                oss << '{';
+                if (indent >= 0)
+                    oss << '\n';
+                bool first = true;
+                for (const auto& pair : std::get<object_type>(value))
+                {
+                    if (!first)
+                    {
+                        oss << ',';
+                        if (indent >= 0)
+                            oss << '\n';
+                    }
+                    first = false;
+                    writeIndent(depth + 1);
+                    oss << '"' << pair.first << '"' << ':';
+                    if (indent >= 0)
+                        oss << ' ';
+                    pair.second.DumpInternal(oss, indent, depth + 1);
+                }
+                if (indent >= 0)
+                {
+                    oss << '\n';
+                    writeIndent(depth);
+                }
+                oss << '}';
+            }
+            else if (std::holds_alternative<array_type>(value))
+            {
+                oss << '[';
+                if (indent >= 0)
+                    oss << '\n';
+                const auto& arr = std::get<array_type>(value);
+                for (size_t i = 0; i < arr.size(); ++i)
+                {
+                    if (i > 0)
+                    {
+                        oss << ',';
+                        if (indent >= 0)
+                            oss << '\n';
+                    }
+                    writeIndent(depth + 1);
+                    arr[i].DumpInternal(oss, indent, depth + 1);
+                }
+                if (indent >= 0)
+                {
+                    oss << '\n';
+                    writeIndent(depth);
+                }
+                oss << ']';
+            }
+        }
     };
 }
 
@@ -101,6 +439,75 @@ const std::string ConfigManager::CONFIG_FILE_NAME = "config.json";
 const std::string ConfigManager::CONFIG_DIRECTORY_NAME = "SpatialAudioVisualizer";
 const std::string ConfigManager::BACKUP_FILE_SUFFIX = ".backup";
 const std::string ConfigManager::REGISTRY_KEY_PATH = "SOFTWARE\\SpatialAudioVisualizer";
+
+namespace
+{
+    std::string ToLowerCopy(const std::string& value)
+    {
+        std::string result = value;
+        std::transform(result.begin(), result.end(), result.begin(),
+            [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+        return result;
+    }
+
+    std::string DirectionToString(CardinalDirection direction)
+    {
+        switch (direction)
+        {
+            case CardinalDirection::Front: return "front";
+            case CardinalDirection::Back: return "back";
+            case CardinalDirection::Left: return "left";
+            case CardinalDirection::Right: return "right";
+            case CardinalDirection::Up: return "up";
+            case CardinalDirection::Down: return "down";
+            case CardinalDirection::FrontLeft: return "front-left";
+            case CardinalDirection::FrontRight: return "front-right";
+            case CardinalDirection::BackLeft: return "back-left";
+            case CardinalDirection::BackRight: return "back-right";
+            default: return "none";
+        }
+    }
+
+    CardinalDirection DirectionFromString(const std::string& value)
+    {
+        std::string normalized = ToLowerCopy(value);
+        if (normalized == "front") return CardinalDirection::Front;
+        if (normalized == "back") return CardinalDirection::Back;
+        if (normalized == "left") return CardinalDirection::Left;
+        if (normalized == "right") return CardinalDirection::Right;
+        if (normalized == "up") return CardinalDirection::Up;
+        if (normalized == "down") return CardinalDirection::Down;
+        if (normalized == "front-left" || normalized == "front_left") return CardinalDirection::FrontLeft;
+        if (normalized == "front-right" || normalized == "front_right") return CardinalDirection::FrontRight;
+        if (normalized == "back-left" || normalized == "back_left") return CardinalDirection::BackLeft;
+        if (normalized == "back-right" || normalized == "back_right") return CardinalDirection::BackRight;
+        return CardinalDirection::None;
+    }
+
+    nlohmann::json SerializeColor(const D2D1_COLOR_F& color)
+    {
+        nlohmann::json jsonColor = nlohmann::json::object();
+        jsonColor["r"] = color.r;
+        jsonColor["g"] = color.g;
+        jsonColor["b"] = color.b;
+        jsonColor["a"] = color.a;
+        return jsonColor;
+    }
+
+    D2D1_COLOR_F DeserializeColor(const nlohmann::json& jsonColor, const D2D1_COLOR_F& fallback)
+    {
+        D2D1_COLOR_F color = fallback;
+        if (!jsonColor.is_object())
+            return color;
+
+        if (!jsonColor["r"].is_null()) color.r = jsonColor["r"].get_float();
+        if (!jsonColor["g"].is_null()) color.g = jsonColor["g"].get_float();
+        if (!jsonColor["b"].is_null()) color.b = jsonColor["b"].get_float();
+        if (!jsonColor["a"].is_null()) color.a = jsonColor["a"].get_float();
+
+        return color;
+    }
+}
 
 ConfigManager::ConfigManager()
     : m_initialized(false)
@@ -120,8 +527,9 @@ bool ConfigManager::Initialize()
     Logger::Info("Initializing ConfigManager...");
 
     // 确定配置目录
-    m_configDirectory = GetAppDataPath() + "\\" + CONFIG_DIRECTORY_NAME;
-    m_configFilePath = m_configDirectory + "\\" + CONFIG_FILE_NAME;
+    std::filesystem::path basePath = std::filesystem::path(GetAppDataPath());
+    m_configDirectory = (basePath / CONFIG_DIRECTORY_NAME).string();
+    m_configFilePath = (std::filesystem::path(m_configDirectory) / CONFIG_FILE_NAME).string();
 
     // 确保配置目录存在
     if (!EnsureConfigDirectory())
@@ -467,7 +875,13 @@ nlohmann::json ConfigManager::SerializeAudioConfig(const AudioConfig& config) co
     json["noiseThreshold"] = config.noiseThreshold;
     json["enableDirectionFiltering"] = config.enableDirectionFiltering;
     json["updateFrequency"] = config.updateFrequency;
-    
+    nlohmann::json directions = nlohmann::json::array();
+    for (CardinalDirection direction : config.enabledDirections)
+    {
+        directions.push_back(DirectionToString(direction));
+    }
+    json["enabledDirections"] = directions;
+
     return json;
 }
 
@@ -483,10 +897,29 @@ AudioConfig ConfigManager::DeserializeAudioConfig(const nlohmann::json& json) co
     
     if (!json["enableDirectionFiltering"].is_null())
         config.enableDirectionFiltering = json["enableDirectionFiltering"].get_bool();
-    
+
     if (!json["updateFrequency"].is_null())
         config.updateFrequency = json["updateFrequency"].get_int();
-    
+
+    if (json["enabledDirections"].is_array())
+    {
+        config.enabledDirections.clear();
+        for (const auto& value : json["enabledDirections"].get_array())
+        {
+            CardinalDirection direction = DirectionFromString(value.get_string());
+            if (direction != CardinalDirection::None)
+            {
+                config.enabledDirections.insert(direction);
+            }
+        }
+
+        if (config.enabledDirections.empty())
+        {
+            // 避免配置导致所有方向被禁用
+            config.enabledDirections = AudioConfig().enabledDirections;
+        }
+    }
+
     return config;
 }
 
@@ -531,28 +964,45 @@ bool ConfigManager::SaveJsonToFile(const std::string& filePath, const nlohmann::
 
 std::string ConfigManager::GetAppDataPath() const
 {
+#ifndef MOCK_WINDOWS_APIS
     wchar_t* path = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &path)))
     {
         std::wstring wpath(path);
         CoTaskMemFree(path);
-        
+
         // 转换为多字节字符串
         int size = WideCharToMultiByte(CP_UTF8, 0, wpath.c_str(), -1, nullptr, 0, nullptr, nullptr);
         std::string result(size - 1, 0);
         WideCharToMultiByte(CP_UTF8, 0, wpath.c_str(), -1, &result[0], size, nullptr, nullptr);
-        
+
         return result;
     }
-    
+
     return "."; // 回退到当前目录
+#else
+    const char* xdgConfig = std::getenv("XDG_CONFIG_HOME");
+    if (xdgConfig != nullptr && *xdgConfig != '\0')
+    {
+        return std::string(xdgConfig);
+    }
+
+    const char* home = std::getenv("HOME");
+    if (home != nullptr && *home != '\0')
+    {
+        return (std::filesystem::path(home) / ".config").string();
+    }
+
+    return ".";
+#endif
 }
 
 bool ConfigManager::ValidateAudioConfig(const AudioConfig& config) const
 {
     return config.sensitivity >= 0.0f && config.sensitivity <= 1.0f &&
            config.noiseThreshold >= 0.0f && config.noiseThreshold <= 1.0f &&
-           config.updateFrequency > 0 && config.updateFrequency <= 120;
+           config.updateFrequency > 0 && config.updateFrequency <= 120 &&
+           !config.enabledDirections.empty();
 }
 
 bool ConfigManager::ValidateVisualConfig(const VisualConfig& config) const
@@ -586,6 +1036,7 @@ nlohmann::json ConfigManager::SerializeVisualConfig(const VisualConfig& config) 
     json["indicatorSize"] = config.indicatorSize;
     json["showCompass"] = config.showCompass;
     json["showIntensityMeter"] = config.showIntensityMeter;
+    json["theme"] = SerializeVisualTheme(config.theme);
     return json;
 }
 
@@ -596,6 +1047,7 @@ VisualConfig ConfigManager::DeserializeVisualConfig(const nlohmann::json& json) 
     if (!json["indicatorSize"].is_null()) config.indicatorSize = json["indicatorSize"].get_int();
     if (!json["showCompass"].is_null()) config.showCompass = json["showCompass"].get_bool();
     if (!json["showIntensityMeter"].is_null()) config.showIntensityMeter = json["showIntensityMeter"].get_bool();
+    if (!json["theme"].is_null()) config.theme = DeserializeVisualTheme(json["theme"]);
     return config;
 }
 
@@ -665,15 +1117,32 @@ PerformanceConfig ConfigManager::DeserializePerformanceConfig(const nlohmann::js
 
 nlohmann::json ConfigManager::SerializeVisualTheme(const VisualTheme& theme) const
 {
-    nlohmann::json json;
-    // 简化实现
+    nlohmann::json json = nlohmann::json::object();
+    json["primaryColor"] = SerializeColor(theme.primaryColor);
+    json["secondaryColor"] = SerializeColor(theme.secondaryColor);
+    json["backgroundColor"] = SerializeColor(theme.backgroundColor);
+    json["indicatorSize"] = theme.indicatorSize;
+    json["style"] = static_cast<int>(theme.style);
     return json;
 }
 
 VisualTheme ConfigManager::DeserializeVisualTheme(const nlohmann::json& json) const
 {
     VisualTheme theme;
-    // 简化实现
+    theme.primaryColor = DeserializeColor(json["primaryColor"], theme.primaryColor);
+    theme.secondaryColor = DeserializeColor(json["secondaryColor"], theme.secondaryColor);
+    theme.backgroundColor = DeserializeColor(json["backgroundColor"], theme.backgroundColor);
+    if (!json["indicatorSize"].is_null())
+        theme.indicatorSize = json["indicatorSize"].get_float();
+    if (!json["style"].is_null())
+    {
+        int styleValue = json["style"].get_int();
+        if (styleValue >= static_cast<int>(IndicatorStyle::Circle) &&
+            styleValue <= static_cast<int>(IndicatorStyle::Ring))
+        {
+            theme.style = static_cast<IndicatorStyle>(styleValue);
+        }
+    }
     return theme;
 }
 

@@ -2,6 +2,7 @@
 #include "../Common/Logger.h"
 #include "../Common/WindowsCompat.h"
 #include <numeric>
+#include <algorithm>
 
 // 方向映射表：方向 -> (方位角, 仰角)
 const std::array<std::pair<CardinalDirection, std::pair<float, float>>, 10> DirectionProcessor::s_cardinalDirections = {{
@@ -70,6 +71,32 @@ ProcessedDirection DirectionProcessor::ProcessAudioData(const SpatialAudioData& 
     result.intensity = intensity;
     result.secondary = GetSecondaryDirections(primaryDirection);
 
+    if (!m_audioConfig.enabledDirections.empty())
+    {
+        auto primaryAllowed = m_audioConfig.enabledDirections.find(result.primary) != m_audioConfig.enabledDirections.end();
+        if (!primaryAllowed)
+        {
+            auto fallback = std::find_if(result.secondary.begin(), result.secondary.end(),
+                [this](CardinalDirection candidate)
+                {
+                    return m_audioConfig.enabledDirections.find(candidate) != m_audioConfig.enabledDirections.end();
+                });
+
+            if (fallback != result.secondary.end())
+            {
+                result.primary = *fallback;
+                result.secondary.erase(fallback);
+            }
+            else
+            {
+                result.primary = CardinalDirection::None;
+                result.intensity = 0.0f;
+                result.secondary.clear();
+            }
+            intensity = result.intensity;
+        }
+    }
+
     // 更新统计信息
     m_processedFrames++;
     m_averageIntensity = (m_averageIntensity * (m_processedFrames - 1) + intensity) / m_processedFrames;
@@ -130,7 +157,11 @@ std::vector<CardinalDirection> DirectionProcessor::GetSecondaryDirections(const 
         float weight = CalculateDirectionWeight(direction, mapping.first);
         if (weight > threshold && weight < 0.8f) // 不包括主方向
         {
-            secondaryDirections.push_back(mapping.first);
+            if (m_audioConfig.enabledDirections.empty() ||
+                m_audioConfig.enabledDirections.find(mapping.first) != m_audioConfig.enabledDirections.end())
+            {
+                secondaryDirections.push_back(mapping.first);
+            }
         }
     }
 
