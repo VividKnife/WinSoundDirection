@@ -28,94 +28,14 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "C
 endif()
 
 # Source files
-set(COMMON_SOURCES
-    src/main.cpp
-    src/Application.cpp
-    src/Common/Logger.cpp
-    src/Common/ErrorHandler.cpp
-)
-
-set(AUDIO_SOURCES
-    src/Audio/AudioCaptureEngine.cpp
-    src/Audio/DirectionProcessor.cpp
-)
-
-set(RENDERING_SOURCES
-    src/Rendering/RenderEngine.cpp
-)
-
-set(WINDOW_SOURCES
-    src/Window/WindowManager.cpp
-)
-
-set(INPUT_SOURCES
-    src/Input/HotkeyManager.cpp
-)
-
-set(SYSTEM_SOURCES
-    src/System/SystemTrayManager.cpp
-)
-
-set(CONFIG_SOURCES
-    src/Config/ConfigManager.cpp
-)
-
-set(ALL_SOURCES
-    ${COMMON_SOURCES}
-    ${AUDIO_SOURCES}
-    ${RENDERING_SOURCES}
-    ${WINDOW_SOURCES}
-    ${INPUT_SOURCES}
-    ${SYSTEM_SOURCES}
-    ${CONFIG_SOURCES}
-)
-
-# Header files
-set(COMMON_HEADERS
-    src/Application.h
-    src/Common/Types.h
-    src/Common/Config.h
-    src/Common/Logger.h
-    src/Common/ErrorHandler.h
-)
-
-set(AUDIO_HEADERS
-    src/Audio/AudioCaptureEngine.h
-    src/Audio/DirectionProcessor.h
-)
-
-set(RENDERING_HEADERS
-    src/Rendering/RenderEngine.h
-)
-
-set(WINDOW_HEADERS
-    src/Window/WindowManager.h
-)
-
-set(INPUT_HEADERS
-    src/Input/HotkeyManager.h
-)
-
-set(SYSTEM_HEADERS
-    src/System/SystemTrayManager.h
-)
-
-set(CONFIG_HEADERS
-    src/Config/ConfigManager.h
-)
-
-set(ALL_HEADERS
-    ${COMMON_HEADERS}
-    ${AUDIO_HEADERS}
-    ${RENDERING_HEADERS}
-    ${WINDOW_HEADERS}
-    ${INPUT_HEADERS}
-    ${SYSTEM_HEADERS}
-    ${CONFIG_HEADERS}
+# Collect sources
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    "src/*.cpp"
+    "src/*.h"
 )
 
 # Create executable
-add_executable(${PROJECT_NAME} ${ALL_SOURCES} ${ALL_HEADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE src)
@@ -133,6 +53,8 @@ if(PLATFORM_WINDOWS)
         gdi32
         dwmapi
         comctl32
+        comdlg32
+        psapi
     )
     
     # Windows-specific compile definitions
