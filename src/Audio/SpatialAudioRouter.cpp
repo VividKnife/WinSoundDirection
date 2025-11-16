@@ -124,6 +124,35 @@ void SpatialAudioRouter::Worker()
         }
 
         const auto direction = m_engine->GetDirectionSnapshot();
+
+        // 计算当前可视化模式并更新 UI 文本
+        const auto overrideMode = m_config->AudioMode();
+        std::wstring label;
+        if (overrideMode == Config::AudioModeOverride::Headphone)
+        {
+            label = L"Headphone mode (LR only)";
+        }
+        else if (overrideMode == Config::AudioModeOverride::Multichannel)
+        {
+            label = L"Multichannel mode (3D)";
+        }
+        else // Auto
+        {
+            if (m_engine->IsStereo())
+            {
+                label = L"Headphone mode (LR only)";
+            }
+            else if (m_engine->IsMultichannel() || m_engine->IsSpatialAudioActive())
+            {
+                label = L"Multichannel mode (3D)";
+            }
+            else
+            {
+                label = L"Stereo (LR only)";
+            }
+        }
+
+        m_visualizer->SetModeLabel(label);
         m_visualizer->UpdateDirection(direction);
     }
 }

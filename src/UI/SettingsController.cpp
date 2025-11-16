@@ -6,9 +6,139 @@
 #include "UI/OverlayWindow.h"
 
 #include <commdlg.h>
+#include <commctrl.h>
 
 #include <algorithm>
 #include <string>
+
+namespace
+{
+constexpr int IDD_OPACITY_DIALOG = 2001;
+constexpr int IDC_OPACITY_SLIDER = 2002;
+constexpr int IDC_OPACITY_VALUE = 2003;
+
+constexpr int IDD_RANGE_DIALOG = 2004;
+constexpr int IDC_RANGE_SLIDER = 2005;
+constexpr int IDC_RANGE_VALUE = 2006;
+
+INT_PTR CALLBACK OpacityDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_INITDIALOG:
+    {
+        auto controller = reinterpret_cast<UI::SettingsController*>(lParam);
+        SetWindowLongPtrW(hwndDlg, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(controller));
+
+        HWND slider = GetDlgItem(hwndDlg, IDC_OPACITY_SLIDER);
+        SendMessageW(slider, TBM_SETRANGE, TRUE, MAKELONG(20, 100));
+
+        int pos = static_cast<int>(controller->CurrentOpacity() * 100.0f + 0.5f);
+        if (pos < 20) pos = 20;
+        if (pos > 100) pos = 100;
+        SendMessageW(slider, TBM_SETPOS, TRUE, pos);
+
+        wchar_t buf[32];
+        swprintf_s(buf, L"%d%%", pos);
+        SetWindowTextW(GetDlgItem(hwndDlg, IDC_OPACITY_VALUE), buf);
+        return TRUE;
+    }
+    case WM_HSCROLL:
+    {
+        auto controller = reinterpret_cast<UI::SettingsController*>(GetWindowLongPtrW(hwndDlg, GWLP_USERDATA));
+        if (!controller)
+        {
+            break;
+        }
+
+        HWND slider = reinterpret_cast<HWND>(lParam);
+        if (slider == GetDlgItem(hwndDlg, IDC_OPACITY_SLIDER))
+        {
+            int pos = static_cast<int>(SendMessageW(slider, TBM_GETPOS, 0, 0));
+            if (pos < 20) pos = 20;
+            if (pos > 100) pos = 100;
+
+            float opacity = pos / 100.0f;
+            controller->UpdateOpacityFromDialog(opacity);
+
+            wchar_t buf[32];
+            swprintf_s(buf, L"%d%%", pos);
+            SetWindowTextW(GetDlgItem(hwndDlg, IDC_OPACITY_VALUE), buf);
+        }
+        break;
+    }
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hwndDlg, LOWORD(wParam));
+            return TRUE;
+        }
+        break;
+    }
+
+    return FALSE;
+}
+
+INT_PTR CALLBACK RangeDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_INITDIALOG:
+    {
+        auto controller = reinterpret_cast<UI::SettingsController*>(lParam);
+        SetWindowLongPtrW(hwndDlg, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(controller));
+
+        HWND slider = GetDlgItem(hwndDlg, IDC_RANGE_SLIDER);
+        // Map 50..200 -> 0.5..2.0
+        SendMessageW(slider, TBM_SETRANGE, TRUE, MAKELONG(50, 200));
+
+        float current = controller->CurrentDetectionRange();
+        int pos = static_cast<int>(current * 100.0f + 0.5f);
+        if (pos < 50) pos = 50;
+        if (pos > 200) pos = 200;
+        SendMessageW(slider, TBM_SETPOS, TRUE, pos);
+
+        wchar_t buf[32];
+        swprintf_s(buf, L"x%.2f", static_cast<float>(pos) / 100.0f);
+        SetWindowTextW(GetDlgItem(hwndDlg, IDC_RANGE_VALUE), buf);
+        return TRUE;
+    }
+    case WM_HSCROLL:
+    {
+        auto controller = reinterpret_cast<UI::SettingsController*>(GetWindowLongPtrW(hwndDlg, GWLP_USERDATA));
+        if (!controller)
+        {
+            break;
+        }
+
+        HWND slider = reinterpret_cast<HWND>(lParam);
+        if (slider == GetDlgItem(hwndDlg, IDC_RANGE_SLIDER))
+        {
+            int pos = static_cast<int>(SendMessageW(slider, TBM_GETPOS, 0, 0));
+            if (pos < 50) pos = 50;
+            if (pos > 200) pos = 200;
+
+            float scale = static_cast<float>(pos) / 100.0f;
+            controller->UpdateDetectionRangeFromDialog(scale);
+
+            wchar_t buf[32];
+            swprintf_s(buf, L"x%.2f", scale);
+            SetWindowTextW(GetDlgItem(hwndDlg, IDC_RANGE_VALUE), buf);
+        }
+        break;
+    }
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hwndDlg, LOWORD(wParam));
+            return TRUE;
+        }
+        break;
+    }
+
+    return FALSE;
+}
+}
 
 using namespace UI;
 
@@ -40,28 +170,33 @@ bool SettingsController::ProcessDialogMessage(MSG* msg)
 
 void SettingsController::BuildMenu(HMENU menu)
 {
-    AppendMenuW(menu, MF_STRING, MenuId_OpacityIncrease, L"Increase Opacity");
-    AppendMenuW(menu, MF_STRING, MenuId_OpacityDecrease, L"Decrease Opacity");
+    // Audio mode (top group)
+    HMENU audioMenu = CreatePopupMenu();
+    auto mode = m_config->AudioMode();
+    AppendMenuW(audioMenu, MF_STRING | ((mode == Config::AudioModeOverride::Auto) ? MF_CHECKED : 0), MenuId_AudioModeAuto, L"Automatic");
+    AppendMenuW(audioMenu, MF_STRING | ((mode == Config::AudioModeOverride::Headphone) ? MF_CHECKED : 0), MenuId_AudioModeHeadphone, L"Headphone (LR only)");
+    AppendMenuW(audioMenu, MF_STRING | ((mode == Config::AudioModeOverride::Multichannel) ? MF_CHECKED : 0), MenuId_AudioModeMultichannel, L"Multichannel (3D)");
+    AppendMenuW(menu, MF_POPUP, reinterpret_cast<UINT_PTR>(audioMenu), L"Audio Mode");
+
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+
+    // Visual tuning
+    AppendMenuW(menu, MF_STRING, MenuId_OpacityDialog, L"Opacity...");
+    AppendMenuW(menu, MF_STRING, MenuId_DetectionRange, L"Detection Range...");
     AppendMenuW(menu, MF_STRING, MenuId_SensitivityIncrease, L"Increase Sensitivity");
     AppendMenuW(menu, MF_STRING, MenuId_SensitivityDecrease, L"Decrease Sensitivity");
-    AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(menu, MF_STRING, MenuId_PickColor, L"Choose Theme Color...");
-    AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
-
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().front ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleFront, L"Detect Front");
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().back ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleBack, L"Detect Back");
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().left ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleLeft, L"Detect Left");
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().right ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleRight, L"Detect Right");
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().up ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleUp, L"Detect Up");
-    AppendMenuW(menu, MF_STRING | (m_config->Filter().down ? MF_CHECKED : MF_UNCHECKED), MenuId_ToggleDown, L"Detect Down");
+    AppendMenuW(menu, MF_STRING, MenuId_PickColor, L"Theme Color...");
 
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+
+    // Hotkeys
     HMENU hotkeyMenu = CreatePopupMenu();
     AppendMenuW(hotkeyMenu, MF_STRING | ((m_config->Hotkeys().key == VK_HOME) ? MF_CHECKED : 0), MenuId_HotkeyHome, L"Home");
     AppendMenuW(hotkeyMenu, MF_STRING | ((m_config->Hotkeys().key == VK_INSERT) ? MF_CHECKED : 0), MenuId_HotkeyInsert, L"Insert");
     AppendMenuW(hotkeyMenu, MF_STRING | ((m_config->Hotkeys().key == VK_F8) ? MF_CHECKED : 0), MenuId_HotkeyF8, L"F8");
     AppendMenuW(menu, MF_POPUP, reinterpret_cast<UINT_PTR>(hotkeyMenu), L"Toggle Hotkey");
+
+    AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu, MF_STRING, MenuId_Save, L"Save Settings");
 }
 
@@ -69,11 +204,11 @@ void SettingsController::OnMenuCommand(UINT id)
 {
     switch (id)
     {
-    case MenuId_OpacityIncrease:
-        AdjustTransparency(0.05f);
+    case MenuId_OpacityDialog:
+        ShowOpacityDialog();
         break;
-    case MenuId_OpacityDecrease:
-        AdjustTransparency(-0.05f);
+    case MenuId_DetectionRange:
+        ShowDetectionRangeDialog();
         break;
     case MenuId_SensitivityIncrease:
         AdjustSensitivity(-1.0f);
@@ -83,24 +218,6 @@ void SettingsController::OnMenuCommand(UINT id)
         break;
     case MenuId_PickColor:
         PickThemeColor();
-        break;
-    case MenuId_ToggleFront:
-        ToggleDirection(L"front");
-        break;
-    case MenuId_ToggleBack:
-        ToggleDirection(L"back");
-        break;
-    case MenuId_ToggleLeft:
-        ToggleDirection(L"left");
-        break;
-    case MenuId_ToggleRight:
-        ToggleDirection(L"right");
-        break;
-    case MenuId_ToggleUp:
-        ToggleDirection(L"up");
-        break;
-    case MenuId_ToggleDown:
-        ToggleDirection(L"down");
         break;
     case MenuId_HotkeyHome:
         m_config->Hotkeys().key = VK_HOME;
@@ -129,7 +246,29 @@ void SettingsController::OnMenuCommand(UINT id)
     case MenuId_Save:
         m_config->Save();
         break;
+    case MenuId_AudioModeAuto:
+        m_config->SetAudioMode(Config::AudioModeOverride::Auto);
+        m_config->Save();
+        break;
+    case MenuId_AudioModeHeadphone:
+        m_config->SetAudioMode(Config::AudioModeOverride::Headphone);
+        m_config->Save();
+        break;
+    case MenuId_AudioModeMultichannel:
+        m_config->SetAudioMode(Config::AudioModeOverride::Multichannel);
+        m_config->Save();
+        break;
     }
+}
+
+void SettingsController::ShowOpacityDialog()
+{
+    DialogBoxParamW(m_instance, MAKEINTRESOURCEW(IDD_OPACITY_DIALOG), m_overlay->Handle(), OpacityDialogProc, reinterpret_cast<LPARAM>(this));
+}
+
+void SettingsController::ShowDetectionRangeDialog()
+{
+    DialogBoxParamW(m_instance, MAKEINTRESOURCEW(IDD_RANGE_DIALOG), m_overlay->Handle(), RangeDialogProc, reinterpret_cast<LPARAM>(this));
 }
 
 void SettingsController::AdjustTransparency(float delta)
@@ -169,9 +308,21 @@ void SettingsController::PickThemeColor()
     }
 }
 
-void SettingsController::ToggleDirection(const std::wstring& direction)
+void SettingsController::UpdateOpacityFromDialog(float opacity)
 {
-    const bool enabled = m_config->IsDirectionEnabled(direction);
-    m_config->SetDirectionEnabled(direction, !enabled);
+    auto& theme = m_config->Theme();
+    theme.opacity = std::clamp(opacity, 0.2f, 1.0f);
+    m_overlay->UpdateTransparency();
+    m_config->Save();
+}
+
+void SettingsController::UpdateDetectionRangeFromDialog(float scale)
+{
+    auto& sensitivity = m_config->Sensitivity();
+    sensitivity.distanceScale = std::clamp(scale, 0.5f, 2.0f);
+    if (m_router)
+    {
+        m_router->ApplySensitivity();
+    }
     m_config->Save();
 }

@@ -9,6 +9,13 @@
 
 namespace Config
 {
+enum class AudioModeOverride
+{
+    Auto = 0,
+    Headphone = 1,
+    Multichannel = 2,
+};
+
 struct HotkeyConfig
 {
     UINT modifier{MOD_CONTROL | MOD_ALT};
@@ -26,6 +33,8 @@ struct SensitivityConfig
 {
     float thresholdDb{-40.0f};
     float smoothing{0.25f};
+    // Detection range / distance mapping scale (0.5~2.0 recommended)
+    float distanceScale{1.0f};
 };
 
 struct DirectionFilter
@@ -67,6 +76,9 @@ public:
     const PerformanceLimits& Limits() const noexcept { return m_limits; }
     PerformanceLimits& Limits() noexcept { return m_limits; }
 
+    AudioModeOverride AudioMode() const noexcept { return m_audioMode; }
+    void SetAudioMode(AudioModeOverride mode) noexcept { m_audioMode = mode; }
+
     bool IsDirectionEnabled(const std::wstring& direction) const;
     void SetDirectionEnabled(const std::wstring& direction, bool enabled);
 
@@ -78,5 +90,6 @@ private:
     DirectionFilter m_filter;
     HotkeyConfig m_hotkeys;
     PerformanceLimits m_limits;
+    AudioModeOverride m_audioMode{AudioModeOverride::Auto};
 };
 }

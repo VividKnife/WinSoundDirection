@@ -27,13 +27,18 @@ public:
 
     void OnMenuCommand(UINT id);
     void SetHotkeyController(Hotkeys::HotkeyController* hotkeys) { m_hotkeys = hotkeys; }
+    float CurrentOpacity() const { return m_config->Theme().opacity; }
+    void UpdateOpacityFromDialog(float opacity);
+    float CurrentDetectionRange() const { return m_config->Sensitivity().distanceScale; }
+    void UpdateDetectionRangeFromDialog(float scale);
 
 private:
     void BuildMenu(HMENU menu);
+    void ShowOpacityDialog();
+    void ShowDetectionRangeDialog();
     void AdjustTransparency(float delta);
     void AdjustSensitivity(float delta);
     void PickThemeColor();
-    void ToggleDirection(const std::wstring& direction);
     HINSTANCE m_instance;
     OverlayWindow* m_overlay;
     Audio::SpatialAudioRouter* m_router;
@@ -42,8 +47,8 @@ private:
 
     enum MenuId
     {
-        MenuId_OpacityIncrease = 1,
-        MenuId_OpacityDecrease,
+        MenuId_OpacityDialog = 1,
+        MenuId_DetectionRange,
         MenuId_SensitivityIncrease,
         MenuId_SensitivityDecrease,
         MenuId_PickColor,
@@ -57,6 +62,9 @@ private:
         MenuId_HotkeyInsert,
         MenuId_HotkeyF8,
         MenuId_Save,
+        MenuId_AudioModeAuto,
+        MenuId_AudioModeHeadphone,
+        MenuId_AudioModeMultichannel,
     };
 };
 }

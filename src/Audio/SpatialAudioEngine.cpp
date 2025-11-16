@@ -134,7 +134,7 @@ void SpatialAudioEngine::InitializeAudioClient()
     THROW_IF_FAILED(m_device->Activate(__uuidof(IAudioClient3), CLSCTX_ALL, nullptr, &m_audioClient));
 
     THROW_IF_FAILED(m_audioClient->GetMixFormat(&m_waveFormat));
-
+ 
     const auto wfx = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(m_waveFormat);
     const bool isFloat = m_waveFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT ||
         (m_waveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE && wfx->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
@@ -142,9 +142,19 @@ void SpatialAudioEngine::InitializeAudioClient()
     {
         throw std::runtime_error("Expected float mix format for loopback capture");
     }
-
-    const DWORD channelMask = (m_waveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) ? wfx->dwChannelMask : SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT;
-    m_isSpatialAudio = (channelMask & SPEAKER_TOP_FRONT_LEFT) != 0 || (channelMask & SPEAKER_BACK_LEFT) != 0;
+ 
+    const bool isExtensible = (m_waveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE);
+    const DWORD channelMask = isExtensible ? wfx->dwChannelMask : (SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT);
+ 
+    // 立体声（典型耳机 / 虚拟环绕终端）
+    m_isStereo = (m_waveFormat->nChannels <= 2) &&
+        ((channelMask & ~(SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT)) == 0);
+ 
+    // 多声道（5.1 / 7.1 等）
+    m_isMultichannel = (m_waveFormat->nChannels >= 6);
+ 
+    // 是否有明显的空间声道（顶部/后方/侧面）
+    m_isSpatialAudio = (channelMask & (SPEAKER_TOP_FRONT_LEFT | SPEAKER_BACK_LEFT | SPEAKER_SIDE_LEFT | SPEAKER_SIDE_RIGHT)) != 0;
 
     m_sampleEvent = CreateEventExW(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     m_stopEvent = CreateEventExW(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
@@ -347,9 +357,48 @@ AudioDirection SpatialAudioEngine::ResolveDirection(const ChannelEnergy& energy)
     float top = m_config->Filter().up ? energy.top : 0.0f;
     float bottom = m_config->Filter().down ? energy.bottom : 0.0f;
 
+    const auto overrideMode = m_config->AudioMode();
+
+    // 根据配置和检测结果决定当前是否按“耳机模式（仅左右）”展示
+    const auto overrideMode = m_config->AudioMode();
+    bool headphoneMode = false;
+    if (m_config->AudioMode() == Config::AudioModeOverride::Headphone)
+    {
+        headphoneMode = true;
+    }
+    else if (m_config->AudioMode() == Config::AudioModeOverride::Multichannel)
+    {
+        headphoneMode = false;
+    }
+    else // Auto
+    {
+        headphoneMode = m_isStereo;
+    }
+
+    if (headphoneMode)
+    {
+        front = back = 0.0f;
+        top = bottom = 0.0f;
+    }
+
     const float horizontalTotal = front + back + left + right;
     const float verticalTotal = top + bottom;
     const float magnitude = horizontalTotal + verticalTotal;
+    const float lrTotal = left + right;
+
+    // BGM 检测：左右几乎完全平衡时视为背景音，忽略
+    const float lrTotal = left + right;
+    if ((left + right) > 0.0001f)
+    {
+        const float lrDiff = std::fabs(left - right);
+        const float balance = lrDiff / (left + right);
+        if (balance < 0.1f) // 左右差异低于 10%
+        {
+            direction.isBackground = true;
+            direction.magnitude = 0.0f;
+            return direction;
+        }
+    }
 
     if (magnitude <= 0.001f)
     {

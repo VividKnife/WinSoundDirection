@@ -89,6 +89,7 @@ void ConfigManager::Load()
 
     m_sensitivity.thresholdDb = static_cast<float>(ReadDouble(path, L"sensitivity", L"thresholdDb", m_sensitivity.thresholdDb));
     m_sensitivity.smoothing = static_cast<float>(ReadDouble(path, L"sensitivity", L"smoothing", m_sensitivity.smoothing));
+    m_sensitivity.distanceScale = static_cast<float>(ReadDouble(path, L"sensitivity", L"distanceScale", m_sensitivity.distanceScale));
 
     m_filter.front = ReadInt(path, L"filter", L"front", m_filter.front ? 1 : 0) != 0;
     m_filter.back = ReadInt(path, L"filter", L"back", m_filter.back ? 1 : 0) != 0;
@@ -102,6 +103,13 @@ void ConfigManager::Load()
 
     m_limits.maxCpuPercent = ReadDouble(path, L"limits", L"cpu", m_limits.maxCpuPercent);
     m_limits.maxMemoryMb = static_cast<size_t>(ReadDouble(path, L"limits", L"memory", static_cast<double>(m_limits.maxMemoryMb)));
+
+    int mode = ReadInt(path, L"audio", L"mode", static_cast<int>(m_audioMode));
+    if (mode < 0 || mode > 2)
+    {
+        mode = static_cast<int>(AudioModeOverride::Auto);
+    }
+    m_audioMode = static_cast<AudioModeOverride>(mode);
 }
 
 void ConfigManager::Save() const
@@ -115,6 +123,7 @@ void ConfigManager::Save() const
 
     WriteDouble(path, L"sensitivity", L"thresholdDb", m_sensitivity.thresholdDb);
     WriteDouble(path, L"sensitivity", L"smoothing", m_sensitivity.smoothing);
+    WriteDouble(path, L"sensitivity", L"distanceScale", m_sensitivity.distanceScale);
 
     WriteDouble(path, L"filter", L"front", m_filter.front ? 1 : 0);
     WriteDouble(path, L"filter", L"back", m_filter.back ? 1 : 0);
@@ -128,6 +137,8 @@ void ConfigManager::Save() const
 
     WriteDouble(path, L"limits", L"cpu", m_limits.maxCpuPercent);
     WriteDouble(path, L"limits", L"memory", static_cast<double>(m_limits.maxMemoryMb));
+
+    WriteDouble(path, L"audio", L"mode", static_cast<int>(m_audioMode));
 }
 
 bool ConfigManager::IsDirectionEnabled(const std::wstring& direction) const

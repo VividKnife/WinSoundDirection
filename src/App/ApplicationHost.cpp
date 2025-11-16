@@ -6,6 +6,7 @@
 #include "Util/ComInitializer.h"
 
 #include <stdexcept>
+#include <commctrl.h>
 
 using namespace App;
 
@@ -34,6 +35,11 @@ int ApplicationHost::Run()
 void ApplicationHost::Initialize()
 {
     Util::ComInitializer comInit;
+
+    INITCOMMONCONTROLSEX icc{};
+    icc.dwSize = sizeof(icc);
+    icc.dwICC = ICC_BAR_CLASSES | ICC_STANDARD_CLASSES;
+    InitCommonControlsEx(&icc);
 
     auto config = std::make_shared<Config::ConfigManager>();
     config->Load();

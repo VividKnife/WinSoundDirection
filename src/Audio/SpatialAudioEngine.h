@@ -23,6 +23,7 @@ struct AudioDirection
     float azimuth{0.0f};
     float elevation{0.0f};
     float magnitude{0.0f};
+    bool isBackground{false};
     std::wstring dominantSessionName;
 };
 
@@ -37,6 +38,8 @@ public:
 
     [[nodiscard]] AudioDirection GetDirectionSnapshot();
     [[nodiscard]] bool IsSpatialAudioActive() const noexcept { return m_isSpatialAudio; }
+    [[nodiscard]] bool IsStereo() const noexcept { return m_isStereo; }
+    [[nodiscard]] bool IsMultichannel() const noexcept { return m_isMultichannel; }
 
 private:
     struct ChannelEnergy
@@ -73,6 +76,8 @@ private:
 
     WAVEFORMATEX* m_waveFormat{nullptr};
     bool m_isSpatialAudio{false};
+    bool m_isStereo{false};
+    bool m_isMultichannel{false};
 
     mutable std::mutex m_mutex;
     AudioDirection m_latestDirection;
