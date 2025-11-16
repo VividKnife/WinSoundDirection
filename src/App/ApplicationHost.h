@@ -11,6 +11,7 @@ class ApplicationHost
 {
 public:
     ApplicationHost(HINSTANCE instance, int cmdShow);
+    ~ApplicationHost();
     int Run();
 
 private:

@@ -14,7 +14,7 @@ class OverlayWindow
 {
 public:
     OverlayWindow(HINSTANCE instance,
-                  std::shared_ptr<Rendering::DirectionVisualizer> visualizer,
+                  Rendering::DirectionVisualizer* visualizer,
                   std::shared_ptr<Config::ConfigManager> config);
 
     void Create(int cmdShow);
@@ -42,7 +42,7 @@ private:
     void EndDrag();
 
     HINSTANCE m_instance;
-    std::shared_ptr<Rendering::DirectionVisualizer> m_visualizer;
+    Rendering::DirectionVisualizer* m_visualizer;
     std::shared_ptr<Config::ConfigManager> m_config;
     HWND m_hwnd{nullptr};
     bool m_visible{true};

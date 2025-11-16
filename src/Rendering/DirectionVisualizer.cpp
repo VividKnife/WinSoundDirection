@@ -7,16 +7,29 @@
 
 #include <algorithm>
 #include <cwchar>
-#include <numbers>
 
 using namespace Rendering;
+
+namespace
+{
+constexpr float kPi = 3.14159265358979323846f;
+}
 
 DirectionVisualizer::DirectionVisualizer(std::shared_ptr<Config::ConfigManager> config)
     : m_config(std::move(config))
     , m_sensitivity(m_config->Sensitivity())
 {
-    D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &m_factory);
-    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(m_dwriteFactory.ReleaseAndGetAddressOf()));
+    D2D1_FACTORY_OPTIONS options{};
+    THROW_IF_FAILED(D2D1CreateFactory(
+        D2D1_FACTORY_TYPE_MULTI_THREADED,
+        __uuidof(ID2D1Factory),
+        &options,
+        reinterpret_cast<void**>(m_factory.ReleaseAndGetAddressOf())));
+
+    THROW_IF_FAILED(DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED,
+        __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(m_dwriteFactory.ReleaseAndGetAddressOf())));
 }
 
 DirectionVisualizer::~DirectionVisualizer() = default;
@@ -73,16 +86,17 @@ void DirectionVisualizer::Render()
 
     const D2D1_POINT_2F arrowEnd{
         center.x + arrowLength * x,
-        center.y + arrowLength * z,
+        center.y - arrowLength * z, // front (z>0) = up, back (z<0) = down
     };
 
     m_renderTarget->DrawLine(center, arrowEnd, m_primaryBrush.Get(), 4.0f);
 
     wchar_t buffer[128];
-    swprintf_s(buffer, L"Az %.0f°\nEl %.0f°\n%s",
-               direction.azimuth * 180.0f / std::numbers::pi_v<float>,
-               direction.elevation * 180.0f / std::numbers::pi_v<float>,
-               direction.dominantSessionName.empty() ? L"" : direction.dominantSessionName.c_str());
+    const wchar_t* name = direction.dominantSessionName.empty() ? L"" : direction.dominantSessionName.c_str();
+    swprintf_s(buffer, L"Az(horiz) %.0f deg\nEl(vert) %.0f deg\n%ls",
+               direction.azimuth * 180.0f / kPi,
+               direction.elevation * 180.0f / kPi,
+               name);
 
     D2D1_RECT_F textRect{ center.x - radius, center.y + radius * 0.25f, center.x + radius, center.y + radius };
     m_renderTarget->DrawTextW(buffer, static_cast<UINT32>(wcslen(buffer)), m_textFormat.Get(), textRect, m_primaryBrush.Get());
@@ -131,7 +145,7 @@ void DirectionVisualizer::CreateDeviceResources(HWND hwnd)
     THROW_IF_FAILED(m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(0.2f, 0.2f, 0.2f, m_config->Theme().opacity), &m_backgroundBrush));
 
     THROW_IF_FAILED(m_dwriteFactory->CreateTextFormat(L"Segoe UI", nullptr, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL,
-                                                      DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-US", &m_textFormat));
+                                                      DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"", &m_textFormat));
     m_textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     m_textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 }

@@ -40,17 +40,6 @@ std::wstring GetSessionDisplayName(Microsoft::WRL::ComPtr<IAudioSessionControl2>
         }
     }
 
-    LPWSTR processPath{};
-    if (SUCCEEDED(session->GetProcessPath(&processPath)) && processPath)
-    {
-        std::filesystem::path path{processPath};
-        CoTaskMemFree(processPath);
-        if (!path.filename().empty())
-        {
-            return path.filename().wstring();
-        }
-    }
-
     DWORD pid{};
     if (SUCCEEDED(session->GetProcessId(&pid)))
     {
@@ -321,7 +310,8 @@ SpatialAudioEngine::ChannelEnergy SpatialAudioEngine::CalculateChannelEnergy(con
         {
             energy.front += normalized;
         }
-        if (speaker & (SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT))
+        // 把 SIDE 通道也计入“后方”，因为很多 7.1 配置用 SIDE_* 做后环绕
+        if (speaker & (SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT | SPEAKER_SIDE_LEFT | SPEAKER_SIDE_RIGHT | SPEAKER_BACK_CENTER))
         {
             energy.back += normalized;
         }

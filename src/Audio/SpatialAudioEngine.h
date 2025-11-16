@@ -4,11 +4,13 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include <audioclient.h>
 #include <mmdeviceapi.h>
+#include <audiopolicy.h>
 #include <spatialaudiohrtf.h>
 #include <wrl/client.h>
 

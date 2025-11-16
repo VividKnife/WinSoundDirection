@@ -15,6 +15,8 @@ ApplicationHost::ApplicationHost(HINSTANCE instance, int cmdShow)
 {
 }
 
+ApplicationHost::~ApplicationHost() = default;
+
 int ApplicationHost::Run()
 {
     try

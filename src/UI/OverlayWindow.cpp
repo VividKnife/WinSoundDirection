@@ -6,6 +6,7 @@
 #include "Util/ComException.h"
 
 #include <dwmapi.h>
+#include <windowsx.h>
 
 #include <stdexcept>
 
@@ -19,10 +20,10 @@ constexpr UINT kRenderTimerIntervalMs = 16;
 }
 
 OverlayWindow::OverlayWindow(HINSTANCE instance,
-                             std::shared_ptr<Rendering::DirectionVisualizer> visualizer,
+                             Rendering::DirectionVisualizer* visualizer,
                              std::shared_ptr<Config::ConfigManager> config)
     : m_instance(instance)
-    , m_visualizer(std::move(visualizer))
+    , m_visualizer(visualizer)
     , m_config(std::move(config))
 {
 }

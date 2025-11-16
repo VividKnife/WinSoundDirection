@@ -3,10 +3,12 @@
 #include <windows.h>
 
 #include <memory>
+#include <string>
+
+#include "Config/ConfigManager.h"
 
 namespace Audio { class SpatialAudioRouter; }
 namespace Hotkeys { class HotkeyController; }
-namespace Config { class ConfigManager; }
 namespace UI { class OverlayWindow; }
 
 namespace UI
@@ -32,7 +34,6 @@ private:
     void AdjustSensitivity(float delta);
     void PickThemeColor();
     void ToggleDirection(const std::wstring& direction);
-
     HINSTANCE m_instance;
     OverlayWindow* m_overlay;
     Audio::SpatialAudioRouter* m_router;

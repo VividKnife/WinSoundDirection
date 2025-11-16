@@ -95,7 +95,7 @@ void SpatialVisualizerApp::Shutdown()
 void SpatialVisualizerApp::InitializeWindow()
 {
     m_visualizer = std::make_unique<Rendering::DirectionVisualizer>(m_config);
-    m_overlayWindow = std::make_unique<UI::OverlayWindow>(m_instance, m_visualizer, m_config);
+    m_overlayWindow = std::make_unique<UI::OverlayWindow>(m_instance, m_visualizer.get(), m_config);
     m_overlayWindow->Create(m_cmdShow);
 }
 
