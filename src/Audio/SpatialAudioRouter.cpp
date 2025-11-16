@@ -8,8 +8,7 @@
 #include <windows.h>
 
 #include <chrono>
-
-#include <chrono>
+#include <cmath>
 
 using namespace Audio;
 
@@ -151,6 +150,43 @@ void SpatialAudioRouter::Worker()
                 label = L"Stereo (LR only)";
             }
         }
+
+        // Append current pattern preset to label
+        const auto& s = m_config->Sensitivity();
+        auto approxEq = [](float a, float b)
+        {
+            return std::fabs(a - b) < 0.01f;
+        };
+
+        auto matches = [&](float strongMag,
+                           float strongJump,
+                           float minInt,
+                           float maxInt,
+                           float dirDeg)
+        {
+            return approxEq(s.strongMagnitude, strongMag) &&
+                   approxEq(s.strongJump, strongJump) &&
+                   approxEq(s.rhythmMinInterval, minInt) &&
+                   approxEq(s.rhythmMaxInterval, maxInt) &&
+                   approxEq(s.rhythmDirectionDeg, dirDeg);
+        };
+
+        const wchar_t* presetLabel = L"Custom";
+        if (matches(0.7f, 0.35f, 0.30f, 0.60f, 30.0f))
+        {
+            presetLabel = L"Conservative";
+        }
+        else if (matches(0.6f, 0.25f, 0.25f, 0.70f, 40.0f))
+        {
+            presetLabel = L"Balanced";
+        }
+        else if (matches(0.5f, 0.15f, 0.20f, 0.80f, 60.0f))
+        {
+            presetLabel = L"Aggressive";
+        }
+
+        label += L" | Pattern: ";
+        label += presetLabel;
 
         m_visualizer->SetModeLabel(label);
         m_visualizer->UpdateDirection(direction);

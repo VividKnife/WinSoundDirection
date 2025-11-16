@@ -23,10 +23,19 @@ struct VisualState
     std::wstring modeLabel;
 };
 
+enum class RadarPattern
+{
+    Unknown = 0, // Fallback / other
+    Strong = 1,  // Sharp impulse / strong transient
+    Medium = 2,  // Rhythmic / burst-like
+    Weak = 3,    // Soft / residual
+};
+
 struct RadarHit
 {
     Audio::AudioDirection direction;
     float radiusFactor{1.0f};
+    RadarPattern pattern{RadarPattern::Unknown};
     std::chrono::steady_clock::time_point time;
 };
 
@@ -59,6 +68,9 @@ private:
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_primaryBrush;
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_backgroundBrush;
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_accentBrush;
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_strongBrush;
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_mediumBrush;
+    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_weakBrush;
     Microsoft::WRL::ComPtr<IDWriteFactory> m_dwriteFactory;
     Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;
 
@@ -66,6 +78,7 @@ private:
     Config::SensitivityConfig m_sensitivity;
     std::vector<RadarHit> m_hits;
     float m_referenceMagnitude{0.0f};
+    float m_lastMagnitude{0.0f};
 
     UINT m_width{320};
     UINT m_height{320};

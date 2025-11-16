@@ -35,6 +35,12 @@ struct SensitivityConfig
     float smoothing{0.25f};
     // Detection range / distance mapping scale (0.5~2.0 recommended)
     float distanceScale{1.0f};
+    // Pattern detection thresholds (rough heuristics)
+    float strongMagnitude{0.6f};
+    float strongJump{0.25f};
+    float rhythmMinInterval{0.25f};
+    float rhythmMaxInterval{0.7f};
+    float rhythmDirectionDeg{40.0f};
 };
 
 struct DirectionFilter

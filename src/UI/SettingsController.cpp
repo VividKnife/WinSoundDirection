@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <string>
+#include <cmath>
 
 namespace
 {
@@ -187,6 +188,18 @@ void SettingsController::BuildMenu(HMENU menu)
     AppendMenuW(menu, MF_STRING, MenuId_SensitivityDecrease, L"Decrease Sensitivity");
     AppendMenuW(menu, MF_STRING, MenuId_PickColor, L"Theme Color...");
 
+    // Pattern presets
+    HMENU patternMenu = CreatePopupMenu();
+    auto preset = CurrentPatternPreset();
+    UINT conservativeFlags = MF_STRING | ((preset == PatternPreset::Conservative) ? MF_CHECKED : 0);
+    UINT balancedFlags = MF_STRING | ((preset == PatternPreset::Balanced) ? MF_CHECKED : 0);
+    UINT aggressiveFlags = MF_STRING | ((preset == PatternPreset::Aggressive) ? MF_CHECKED : 0);
+
+    AppendMenuW(patternMenu, conservativeFlags, MenuId_PatternPresetConservative, L"Conservative");
+    AppendMenuW(patternMenu, balancedFlags, MenuId_PatternPresetBalanced, L"Balanced (default)");
+    AppendMenuW(patternMenu, aggressiveFlags, MenuId_PatternPresetAggressive, L"Aggressive");
+    AppendMenuW(menu, MF_POPUP, reinterpret_cast<UINT_PTR>(patternMenu), L"Pattern Preset");
+
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
 
     // Hotkeys
@@ -218,6 +231,15 @@ void SettingsController::OnMenuCommand(UINT id)
         break;
     case MenuId_PickColor:
         PickThemeColor();
+        break;
+    case MenuId_PatternPresetConservative:
+        ApplyPatternPresetConservative();
+        break;
+    case MenuId_PatternPresetBalanced:
+        ApplyPatternPresetBalanced();
+        break;
+    case MenuId_PatternPresetAggressive:
+        ApplyPatternPresetAggressive();
         break;
     case MenuId_HotkeyHome:
         m_config->Hotkeys().key = VK_HOME;
@@ -306,6 +328,95 @@ void SettingsController::PickThemeColor()
         m_config->Save();
         m_overlay->ForceRender();
     }
+}
+
+void SettingsController::ApplyPatternPresetConservative()
+{
+    auto& sensitivity = m_config->Sensitivity();
+    // Require stronger, clearer events; narrower rhythm window and direction
+    sensitivity.strongMagnitude = 0.7f;
+    sensitivity.strongJump = 0.35f;
+    sensitivity.rhythmMinInterval = 0.30f;
+    sensitivity.rhythmMaxInterval = 0.60f;
+    sensitivity.rhythmDirectionDeg = 30.0f;
+
+    if (m_router)
+    {
+        m_router->ApplySensitivity();
+    }
+    m_config->Save();
+}
+
+void SettingsController::ApplyPatternPresetBalanced()
+{
+    auto& sensitivity = m_config->Sensitivity();
+    // Default tuning: compromise between stability and responsiveness
+    sensitivity.strongMagnitude = 0.6f;
+    sensitivity.strongJump = 0.25f;
+    sensitivity.rhythmMinInterval = 0.25f;
+    sensitivity.rhythmMaxInterval = 0.70f;
+    sensitivity.rhythmDirectionDeg = 40.0f;
+
+    if (m_router)
+    {
+        m_router->ApplySensitivity();
+    }
+    m_config->Save();
+}
+
+void SettingsController::ApplyPatternPresetAggressive()
+{
+    auto& sensitivity = m_config->Sensitivity();
+    // Easier to trigger Strong/Medium; wider rhythm and direction windows
+    sensitivity.strongMagnitude = 0.5f;
+    sensitivity.strongJump = 0.15f;
+    sensitivity.rhythmMinInterval = 0.20f;
+    sensitivity.rhythmMaxInterval = 0.80f;
+    sensitivity.rhythmDirectionDeg = 60.0f;
+
+    if (m_router)
+    {
+        m_router->ApplySensitivity();
+    }
+    m_config->Save();
+}
+
+SettingsController::PatternPreset SettingsController::CurrentPatternPreset() const
+{
+    const auto& s = m_config->Sensitivity();
+
+    auto approxEq = [](float a, float b)
+    {
+        return std::fabs(a - b) < 0.01f;
+    };
+
+    auto matches = [&](float strongMag,
+                       float strongJump,
+                       float minInt,
+                       float maxInt,
+                       float dirDeg)
+    {
+        return approxEq(s.strongMagnitude, strongMag) &&
+               approxEq(s.strongJump, strongJump) &&
+               approxEq(s.rhythmMinInterval, minInt) &&
+               approxEq(s.rhythmMaxInterval, maxInt) &&
+               approxEq(s.rhythmDirectionDeg, dirDeg);
+    };
+
+    if (matches(0.7f, 0.35f, 0.30f, 0.60f, 30.0f))
+    {
+        return PatternPreset::Conservative;
+    }
+    if (matches(0.6f, 0.25f, 0.25f, 0.70f, 40.0f))
+    {
+        return PatternPreset::Balanced;
+    }
+    if (matches(0.5f, 0.15f, 0.20f, 0.80f, 60.0f))
+    {
+        return PatternPreset::Aggressive;
+    }
+
+    return PatternPreset::Custom;
 }
 
 void SettingsController::UpdateOpacityFromDialog(float opacity)

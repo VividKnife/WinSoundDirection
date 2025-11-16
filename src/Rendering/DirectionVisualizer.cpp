@@ -14,7 +14,35 @@ using namespace Rendering;
 namespace
 {
 constexpr float kPi = 3.14159265358979323846f;
+
+// Very lightweight pattern style presets. These are not
+// semantic labels like "footstep"/"gunshot", but give
+// different distance emphasis per rough pattern bucket.
+struct PatternStyle
+{
+    RadarPattern id;
+    float distanceScale; // Multiplier on top of global distanceScale
+};
+
+constexpr PatternStyle kPatternStyles[] = {
+    { RadarPattern::Strong, 0.7f }, // Strong impulse: emphasize closer distance
+    { RadarPattern::Medium, 1.0f }, // Rhythmic / burst: neutral
+    { RadarPattern::Weak,   1.2f }, // Soft / residual: slightly farther
+    { RadarPattern::Unknown, 1.0f },
+};
+
+float DistanceScaleForPattern(RadarPattern pattern)
+{
+    for (const auto& p : kPatternStyles)
+    {
+        if (p.id == pattern)
+        {
+            return p.distanceScale;
+        }
+    }
+    return 1.0f;
 }
+} // anonymous namespace
 
 DirectionVisualizer::DirectionVisualizer(std::shared_ptr<Config::ConfigManager> config)
     : m_config(std::move(config))
@@ -124,12 +152,14 @@ void DirectionVisualizer::Render()
 
             float fade = 1.0f - (age / trailSeconds);
 
-              // Apply detection range scale (distanceScale): 0.5~2.0
-              float scale = m_sensitivity.distanceScale;
-              if (scale < 0.5f) scale = 0.5f;
-              if (scale > 2.0f) scale = 2.0f;
+            // Apply detection range scale (distanceScale): 0.5~2.0
+            float scale = m_sensitivity.distanceScale;
+            if (scale < 0.5f) scale = 0.5f;
+            if (scale > 2.0f) scale = 2.0f;
 
-              const float r = radius * std::clamp(hit.radiusFactor * scale, 0.05f, 1.0f);
+            // Pattern-specific distance emphasis
+            const float patternScale = DistanceScaleForPattern(hit.pattern);
+            const float r = radius * std::clamp(hit.radiusFactor * scale * patternScale, 0.05f, 1.0f);
             const float azimuth = hit.direction.azimuth;
             const float elevation = hit.direction.elevation;
 
@@ -143,13 +173,67 @@ void DirectionVisualizer::Render()
 
             const float dotRadius = 4.0f + 2.0f * hit.direction.magnitude;
 
-            m_primaryBrush->SetOpacity(baseOpacity * fade);
-            m_renderTarget->FillEllipse(D2D1::Ellipse(p, dotRadius, dotRadius),
-                                        m_primaryBrush.Get());
+            // Choose brush per pattern (fixed colors)
+            ID2D1SolidColorBrush* brush = nullptr;
+            switch (hit.pattern)
+            {
+            case RadarPattern::Strong:
+                brush = m_strongBrush ? m_strongBrush.Get() : (m_accentBrush ? m_accentBrush.Get() : m_primaryBrush.Get());
+                break;
+            case RadarPattern::Medium:
+                brush = m_mediumBrush ? m_mediumBrush.Get() : m_primaryBrush.Get();
+                break;
+            case RadarPattern::Weak:
+            case RadarPattern::Unknown:
+                brush = m_weakBrush ? m_weakBrush.Get() : (m_backgroundBrush ? m_backgroundBrush.Get() : m_primaryBrush.Get());
+                break;
+            }
+            if (!brush)
+            {
+                brush = m_primaryBrush.Get();
+            }
+
+            brush->SetOpacity(baseOpacity * fade);
+
+            switch (hit.pattern)
+            {
+            case RadarPattern::Strong:
+                // Red filled circle
+                m_renderTarget->FillEllipse(D2D1::Ellipse(p, dotRadius, dotRadius), brush);
+                break;
+            case RadarPattern::Medium:
+                // Blue square
+                m_renderTarget->FillRectangle(
+                    D2D1::RectF(p.x - dotRadius,
+                                p.y - dotRadius,
+                                p.x + dotRadius,
+                                p.y + dotRadius),
+                    brush);
+                break;
+            case RadarPattern::Weak:
+            default:
+                // Green triangle
+                m_renderTarget->DrawLine(
+                    D2D1::Point2F(p.x, p.y - dotRadius),
+                    D2D1::Point2F(p.x - dotRadius, p.y + dotRadius),
+                    brush, 2.0f);
+                m_renderTarget->DrawLine(
+                    D2D1::Point2F(p.x - dotRadius, p.y + dotRadius),
+                    D2D1::Point2F(p.x + dotRadius, p.y + dotRadius),
+                    brush, 2.0f);
+                m_renderTarget->DrawLine(
+                    D2D1::Point2F(p.x + dotRadius, p.y + dotRadius),
+                    D2D1::Point2F(p.x, p.y - dotRadius),
+                    brush, 2.0f);
+                break;
+            }
         }
     }
 
-    m_primaryBrush->SetOpacity(baseOpacity);
+    if (m_primaryBrush)
+    {
+        m_primaryBrush->SetOpacity(baseOpacity);
+    }
 
     // Text uses latest hit direction if available, otherwise current state
     Audio::AudioDirection textDir{};
@@ -190,6 +274,8 @@ void DirectionVisualizer::UpdateDirection(const Audio::AudioDirection& direction
     // Record non-background, strong enough hits for radar trail
     if (!direction.isBackground && direction.magnitude > 0.15f)
     {
+        const auto now = std::chrono::steady_clock::now();
+
         // Update reference magnitude for relative near/far feeling
         if (m_referenceMagnitude <= 0.0f)
         {
@@ -203,16 +289,62 @@ void DirectionVisualizer::UpdateDirection(const Audio::AudioDirection& direction
 
         float ref = (m_referenceMagnitude > 0.001f) ? m_referenceMagnitude : direction.magnitude;
         float relative = (ref > 0.001f) ? (direction.magnitude / ref) : 1.0f;
+        relative = std::clamp(relative, 0.0f, 2.0f);
 
-        // Map relative magnitude to radius factor: louder -> closer to center
-        float radiusFactor = 1.0f - std::clamp(relative, 0.0f, 1.0f); // 0 near, 1 far
-        radiusFactor = std::clamp(radiusFactor, 0.15f, 1.0f);
+        // Non-linear mapping: emphasize contrast between near and far
+        // relative ~= 0   -> very far  (outer ring)
+        // relative ~= 1   -> baseline
+        // relative >~ 1.5 -> very close (tight to center)
+        float loudNorm = std::clamp(relative / 1.5f, 0.0f, 1.0f); // 0..1
+        float quietNorm = 1.0f - loudNorm;                        // 0 near, 1 far
+
+        const float minRadius = 0.12f;
+        const float maxRadius = 1.0f;
+        float radiusFactor = minRadius + (maxRadius - minRadius) * (quietNorm * quietNorm);
+        radiusFactor = std::clamp(radiusFactor, minRadius, maxRadius);
+
+        // --- Pattern classification (heuristic only, configurable via SensitivityConfig) ---
+        RadarPattern pattern = RadarPattern::Weak;
+
+        const auto sensitivity = m_sensitivity;
+
+        // 1) Strong, sharp impulse: sudden rise vs previous magnitude
+        const float magnitudeJump = direction.magnitude - m_lastMagnitude;
+        if (direction.magnitude > sensitivity.strongMagnitude && magnitudeJump > sensitivity.strongJump)
+        {
+            pattern = RadarPattern::Strong;
+        }
+        else
+        {
+            // 2) Rhythmic / burst-like: recent hit in similar direction within ~0.3–0.7s
+            const float minInterval = sensitivity.rhythmMinInterval;
+            const float maxInterval = sensitivity.rhythmMaxInterval;
+            const float maxDirectionDelta = sensitivity.rhythmDirectionDeg * kPi / 180.0f;
+
+            if (!m_hits.empty())
+            {
+                const RadarHit& last = m_hits.back();
+                const float dt = std::chrono::duration<float>(now - last.time).count();
+                if (dt >= minInterval && dt <= maxInterval)
+                {
+                    const float dazimuth = std::fabs(direction.azimuth - last.direction.azimuth);
+                    const float delev = std::fabs(direction.elevation - last.direction.elevation);
+                    if (dazimuth < maxDirectionDelta && delev < maxDirectionDelta)
+                    {
+                        pattern = RadarPattern::Medium;
+                    }
+                }
+            }
+        }
 
         RadarHit hit;
         hit.direction = direction;
         hit.radiusFactor = radiusFactor;
-        hit.time = std::chrono::steady_clock::now();
+        hit.pattern = pattern;
+        hit.time = now;
         m_hits.push_back(hit);
+
+        m_lastMagnitude = direction.magnitude;
     }
 }
 
@@ -267,6 +399,20 @@ void DirectionVisualizer::CreateDeviceResources(HWND hwnd)
     THROW_IF_FAILED(m_renderTarget->CreateSolidColorBrush(
                         D2D1::ColorF(0.3f, 0.3f, 0.35f, m_config->Theme().opacity * 0.7f),
                         &m_backgroundBrush));
+
+    const float alpha = m_config->Theme().opacity;
+    // Strong: red
+    THROW_IF_FAILED(m_renderTarget->CreateSolidColorBrush(
+                        D2D1::ColorF(0.95f, 0.25f, 0.25f, alpha),
+                        &m_strongBrush));
+    // Medium: blue
+    THROW_IF_FAILED(m_renderTarget->CreateSolidColorBrush(
+                        D2D1::ColorF(0.25f, 0.55f, 0.95f, alpha),
+                        &m_mediumBrush));
+    // Weak/other: green
+    THROW_IF_FAILED(m_renderTarget->CreateSolidColorBrush(
+                        D2D1::ColorF(0.30f, 0.85f, 0.40f, alpha),
+                        &m_weakBrush));
 
     THROW_IF_FAILED(m_dwriteFactory->CreateTextFormat(L"Segoe UI",
                                                       nullptr,

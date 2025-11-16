@@ -90,6 +90,11 @@ void ConfigManager::Load()
     m_sensitivity.thresholdDb = static_cast<float>(ReadDouble(path, L"sensitivity", L"thresholdDb", m_sensitivity.thresholdDb));
     m_sensitivity.smoothing = static_cast<float>(ReadDouble(path, L"sensitivity", L"smoothing", m_sensitivity.smoothing));
     m_sensitivity.distanceScale = static_cast<float>(ReadDouble(path, L"sensitivity", L"distanceScale", m_sensitivity.distanceScale));
+    m_sensitivity.strongMagnitude = static_cast<float>(ReadDouble(path, L"sensitivity", L"strongMagnitude", m_sensitivity.strongMagnitude));
+    m_sensitivity.strongJump = static_cast<float>(ReadDouble(path, L"sensitivity", L"strongJump", m_sensitivity.strongJump));
+    m_sensitivity.rhythmMinInterval = static_cast<float>(ReadDouble(path, L"sensitivity", L"rhythmMinInterval", m_sensitivity.rhythmMinInterval));
+    m_sensitivity.rhythmMaxInterval = static_cast<float>(ReadDouble(path, L"sensitivity", L"rhythmMaxInterval", m_sensitivity.rhythmMaxInterval));
+    m_sensitivity.rhythmDirectionDeg = static_cast<float>(ReadDouble(path, L"sensitivity", L"rhythmDirectionDeg", m_sensitivity.rhythmDirectionDeg));
 
     m_filter.front = ReadInt(path, L"filter", L"front", m_filter.front ? 1 : 0) != 0;
     m_filter.back = ReadInt(path, L"filter", L"back", m_filter.back ? 1 : 0) != 0;
@@ -124,6 +129,11 @@ void ConfigManager::Save() const
     WriteDouble(path, L"sensitivity", L"thresholdDb", m_sensitivity.thresholdDb);
     WriteDouble(path, L"sensitivity", L"smoothing", m_sensitivity.smoothing);
     WriteDouble(path, L"sensitivity", L"distanceScale", m_sensitivity.distanceScale);
+    WriteDouble(path, L"sensitivity", L"strongMagnitude", m_sensitivity.strongMagnitude);
+    WriteDouble(path, L"sensitivity", L"strongJump", m_sensitivity.strongJump);
+    WriteDouble(path, L"sensitivity", L"rhythmMinInterval", m_sensitivity.rhythmMinInterval);
+    WriteDouble(path, L"sensitivity", L"rhythmMaxInterval", m_sensitivity.rhythmMaxInterval);
+    WriteDouble(path, L"sensitivity", L"rhythmDirectionDeg", m_sensitivity.rhythmDirectionDeg);
 
     WriteDouble(path, L"filter", L"front", m_filter.front ? 1 : 0);
     WriteDouble(path, L"filter", L"back", m_filter.back ? 1 : 0);

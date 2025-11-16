@@ -39,6 +39,19 @@ private:
     void AdjustTransparency(float delta);
     void AdjustSensitivity(float delta);
     void PickThemeColor();
+    void ApplyPatternPresetConservative();
+    void ApplyPatternPresetBalanced();
+    void ApplyPatternPresetAggressive();
+
+    enum class PatternPreset
+    {
+        Conservative,
+        Balanced,
+        Aggressive,
+        Custom,
+    };
+
+    PatternPreset CurrentPatternPreset() const;
     HINSTANCE m_instance;
     OverlayWindow* m_overlay;
     Audio::SpatialAudioRouter* m_router;
@@ -65,6 +78,9 @@ private:
         MenuId_AudioModeAuto,
         MenuId_AudioModeHeadphone,
         MenuId_AudioModeMultichannel,
+        MenuId_PatternPresetConservative,
+        MenuId_PatternPresetBalanced,
+        MenuId_PatternPresetAggressive,
     };
 };
 }
