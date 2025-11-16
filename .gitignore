@@ -27,3 +27,10 @@ Makefile
 *.tmp
 *.temp
 *~
+
+# Visual Studio / Rider / Visual C++
+.vs/
+*.user
+*.userosscache
+*.VC.db
+*.suo
